@@ -1,0 +1,138 @@
+@import "tailwindcss";
+
+@font-face {
+    font-family: "BYekan";
+    src: url("./assets/fonts/B_Yekan/Yekan.ttf") format("truetype");
+    font-weight: 400;
+    font-style: normal;
+}
+
+@layer base {
+    :focus-visible {
+        outline-offset: 2px;
+    }
+
+    body {
+        background-color: #e5e7eb;
+        font-family: "BYekan", "sans-serif";
+        color: #000000;
+    }
+}
+
+@utility offer-timer {
+    @apply bg-light-gray px-1 rounded-lg text-black;
+}
+
+@utility mobileNav-item-link {
+    width: 100%;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+@utility mobileNav-item {
+    padding: 12px 0;
+    position: relative;
+    width: 100%;
+    &::after {
+        width: 0;
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 50%;
+        height: 100%;
+    }
+
+    &.animate-nav-bg::after {
+        animation: nav-bg-reveal 0.4s forwards;
+    }
+}
+
+@utility productCard-icon {
+    position: relative;
+    &::after {
+        content: "";
+        position: absolute;
+        width: 0;
+        height: 0;
+        background-color: #2777FC;
+        border-radius: 50%;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        transition: width 500ms ease, height 500ms ease;
+        z-index: -1;
+    }
+
+    @media (hover: hover) {
+        &:hover::after {
+            width: 200%;
+            height: 200%;
+        }
+    }
+
+    &.favorite::after {
+        width: 200%;
+        height: 200%;
+    }
+
+}
+
+
+@keyframes nav-bg-reveal {
+    0% {
+        width: 0;
+        left: 50%;
+        transform: translateX(-50%);
+        opacity: 0;
+        background-color: #f3f4f6;
+    }
+
+    60% {
+        width: 50%;
+        left: 50%;
+        transform: translateX(-50%);
+        opacity: 1;
+        background-color: #f3f4f6;
+    }
+
+    100% {
+        width: 100%;
+        left: 50%;
+        transform: translateX(-50%);
+        opacity: 1;
+        background-color: white;
+    }
+}
+
+@theme {
+    --color-lightest-gray: #f3f4f6;
+    --color-light-gray: #e5e7eb;
+    --color-dark-gray: #6a7282;
+    --color-darkest-gray: #0F172A;
+    --color-primary-blue: #2777FC;
+    --color-primary-dark-blue: #1D4ED8;
+    --color-dark-blue: #090949;
+    --color-primary-red: #D32F2F;
+}
+
+
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+    }
+}
+
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+input:-webkit-autofill:active {
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: black;
+    box-shadow: inset 0 0 2px 20px white;
+}
