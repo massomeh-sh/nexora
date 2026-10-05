@@ -7,8 +7,11 @@ export interface AuthUser {
 
 export interface AuthResponse {
     success: boolean;
+    message: string;
     data: AuthUser;
 }
+
+export type AuthResponseWithoutData = Omit<AuthResponse, "data">;
 
 export interface SignUpParams {
     name: string,
@@ -20,6 +23,12 @@ export interface SignUpParams {
 export interface SignInParams {
     email: string;
     password: string;
+}
+
+
+export interface ResetPasswordParams {
+    password: string;
+    token: string;
 }
 
 export interface MeResponse {

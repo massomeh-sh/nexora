@@ -1,114 +1,235 @@
 const asyncHandler = require('express-async-handler');
+const mongoose = require('mongoose');
 const Cart = require('../models/Cart');
 const Product = require('../models/Product');
+
+const POPULATE_FIELDS =
+    'name images price shortDescription description discountPrice stock unit';
+
+// ---------- Helpers ----------
+
+// تبدیل ورودی به عدد صحیح؛ در غیر این صورت NaN
+const parseQuantity = (value) => {
+    const q = Number(value);
+    return Number.isInteger(q) ? q : NaN;
+};
+
+// اگه تعداد بیشتر از موجودی باشه خطا می‌ده
+const assertStock = (res, product, quantity) => {
+    if (product.stock < quantity) {
+        res.status(400);
+        throw new Error(
+            product.stock === 0
+                ? 'این محصول موجود نیست'
+                : `موجودی محصول کافی نیست (حداکثر ${product.stock} عدد)`
+        );
+    }
+};
+
+const getEffectivePrice = (product) =>
+    product.discountPrice > 0 ? product.discountPrice : product.price;
 
 // @desc    گرفتن سبد خرید کاربر
 // @route   GET /api/cart
 // @access  Private
 const getCart = asyncHandler(async (req, res) => {
-  let cart = await Cart.findOne({ user: req.user._id }).populate(
-    'items.product',
-    'name images price stock unit'
-  );
+    let cart = await Cart.findOne({user: req.user._id}).populate(
+        'items.product',
+        POPULATE_FIELDS
+    );
 
-  if (!cart) {
-    cart = await Cart.create({ user: req.user._id, items: [] });
-  }
+    if (!cart) {
+        cart = await Cart.create({user: req.user._id, items: []});
+    }
 
-  res.json({ success: true, data: cart });
+    res.json({success: true, data: cart});
 });
 
 // @desc    افزودن محصول به سبد خرید
 // @route   POST /api/cart
 // @access  Private
 const addToCart = asyncHandler(async (req, res) => {
-  const { productId, quantity } = req.body;
+    const {productId} = req.body;
+    const quantity = parseQuantity(req.body.quantity ?? 1);
 
-  const product = await Product.findById(productId);
-  if (!product) {
-    res.status(404);
-    throw new Error('محصول یافت نشد');
-  }
+    if (!productId || !mongoose.isValidObjectId(productId)) {
+        res.status(400);
+        throw new Error('شناسه محصول نامعتبر است');
+    }
 
-  if (product.stock < quantity) {
-    res.status(400);
-    throw new Error('موجودی محصول کافی نیست');
-  }
+    if (!Number.isInteger(quantity) || quantity < 1) {
+        res.status(400);
+        throw new Error('تعداد نامعتبر است');
+    }
 
-  let cart = await Cart.findOne({ user: req.user._id });
-  if (!cart) {
-    cart = new Cart({ user: req.user._id, items: [] });
-  }
+    const product = await Product.findById(productId);
+    if (!product) {
+        res.status(404);
+        throw new Error('محصول یافت نشد');
+    }
 
-  const existingItem = cart.items.find(
-    (item) => item.product.toString() === productId
-  );
+    let cart = await Cart.findOne({user: req.user._id});
+    if (!cart) {
+        cart = new Cart({user: req.user._id, items: []});
+    }
 
-  const effectivePrice = product.discountPrice > 0 ? product.discountPrice : product.price;
+    const existingItem = cart.items.find(
+        (item) => item.product.toString() === String(productId)
+    );
 
-  if (existingItem) {
-    existingItem.quantity += Number(quantity) || 1;
-  } else {
-    cart.items.push({
-      product: productId,
-      quantity: Number(quantity) || 1,
-      price: effectivePrice,
-    });
-  }
+    const effectivePrice = getEffectivePrice(product);
 
-  await cart.save();
-  await cart.populate('items.product', 'name images price stock unit');
+    // quantity همون مقدار نهایی آیتم در سبده (مثل رفتار قبلی)، نه مقدار اضافه‌شونده
+    const newQuantity = quantity;
+    assertStock(res, product, newQuantity);
 
-  res.status(201).json({ success: true, data: cart });
+    if (existingItem) {
+        existingItem.quantity = newQuantity;
+        existingItem.price = effectivePrice;
+    } else {
+        cart.items.push({product: productId, quantity, price: effectivePrice});
+    }
+
+    await cart.save();
+    await cart.populate('items.product', POPULATE_FIELDS);
+
+    res.status(201).json({success: true, data: cart});
 });
 
 // @desc    بروزرسانی تعداد یک آیتم در سبد خرید
 // @route   PUT /api/cart/:itemId
 // @access  Private
 const updateCartItem = asyncHandler(async (req, res) => {
-  const { quantity } = req.body;
-  const cart = await Cart.findOne({ user: req.user._id });
+    const quantity = parseQuantity(req.body.quantity);
 
-  if (!cart) {
-    res.status(404);
-    throw new Error('سبد خرید یافت نشد');
-  }
+    if (!Number.isInteger(quantity)) {
+        res.status(400);
+        throw new Error('تعداد نامعتبر است');
+    }
 
-  const item = cart.items.id(req.params.itemId);
-  if (!item) {
-    res.status(404);
-    throw new Error('آیتم مورد نظر در سبد خرید یافت نشد');
-  }
+    const cart = await Cart.findOne({user: req.user._id});
+    if (!cart) {
+        res.status(404);
+        throw new Error('سبد خرید یافت نشد');
+    }
 
-  if (quantity <= 0) {
-    item.deleteOne();
-  } else {
-    item.quantity = quantity;
-  }
+    const item = cart.items.id(req.params.itemId);
+    if (!item) {
+        res.status(404);
+        throw new Error('آیتم مورد نظر در سبد خرید یافت نشد');
+    }
 
-  await cart.save();
-  await cart.populate('items.product', 'name images price stock unit');
+    if (quantity <= 0) {
+        item.deleteOne();
+    } else {
+        const product = await Product.findById(item.product);
+        if (!product) {
+            res.status(404);
+            throw new Error('محصول یافت نشد');
+        }
+        assertStock(res, product, quantity);
+        item.quantity = quantity;
+    }
 
-  res.json({ success: true, data: cart });
+    await cart.save();
+    await cart.populate('items.product', POPULATE_FIELDS);
+
+    res.json({success: true, data: cart});
 });
 
 // @desc    حذف آیتم از سبد خرید
 // @route   DELETE /api/cart/:itemId
 // @access  Private
 const removeCartItem = asyncHandler(async (req, res) => {
-  const cart = await Cart.findOne({ user: req.user._id });
+    const cart = await Cart.findOne({user: req.user._id});
 
-  if (!cart) {
-    res.status(404);
-    throw new Error('سبد خرید یافت نشد');
-  }
+    if (!cart) {
+        res.status(404);
+        throw new Error('سبد خرید یافت نشد');
+    }
 
-  cart.items = cart.items.filter(
-    (item) => item._id.toString() !== req.params.itemId
-  );
+    cart.items = cart.items.filter(
+        (item) => item._id.toString() !== req.params.itemId
+    );
 
-  await cart.save();
-  res.json({ success: true, data: cart });
+    await cart.save();
+    res.json({success: true, data: cart});
 });
 
-module.exports = { getCart, addToCart, updateCartItem, removeCartItem };
+// @desc    ادغام سبد خرید مهمان با سبد کاربر
+// @route   POST /api/cart/merge
+// @access  Private
+const mergeCart = asyncHandler(async (req, res) => {
+    const {items} = req.body;
+
+    if (!Array.isArray(items)) {
+        res.status(400);
+        throw new Error('آیتم‌های سبد خرید نامعتبر هستند');
+    }
+
+    let cart = await Cart.findOne({user: req.user._id});
+    if (!cart) {
+        cart = new Cart({user: req.user._id, items: []});
+    }
+
+    for (const localItem of items) {
+        const productId = localItem.product?._id;
+        if (!productId || !mongoose.isValidObjectId(productId)) continue;
+
+        const product = await Product.findById(productId);
+        if (!product || product.stock < 1) continue; // محصول ناموجود اضافه نشه
+
+        const existingItem = cart.items.find(
+            (item) => item.product.toString() === String(productId)
+        );
+
+        const effectivePrice = getEffectivePrice(product);
+        const quantity = Math.max(parseQuantity(localItem.quantity) || 1, 1);
+
+        if (existingItem) {
+            existingItem.quantity = Math.min(
+                existingItem.quantity + quantity,
+                product.stock
+            );
+            existingItem.price = effectivePrice;
+        } else {
+            cart.items.push({
+                product: product._id,
+                quantity: Math.min(quantity, product.stock),
+                price: effectivePrice,
+            });
+        }
+    }
+
+    await cart.save();
+    await cart.populate('items.product', POPULATE_FIELDS);
+
+    res.json({success: true, data: cart});
+});
+
+// @desc    خالی کردن کامل سبد خرید
+// @route   DELETE /api/cart
+// @access  Private
+const clearCart = asyncHandler(async (req, res) => {
+    const cart = await Cart.findOne({user: req.user._id});
+
+    if (!cart) {
+        res.status(404);
+        throw new Error('سبد خرید یافت نشد');
+    }
+
+    cart.items = [];
+
+    await cart.save();
+
+    res.json({success: true, data: cart});
+});
+
+module.exports = {
+    getCart,
+    addToCart,
+    updateCartItem,
+    removeCartItem,
+    mergeCart,
+    clearCart,
+};

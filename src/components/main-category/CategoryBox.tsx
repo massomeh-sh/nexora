@@ -6,7 +6,7 @@ function CategoryBox(): JSX.Element {
     return (
         <div className="mt-10 overflow-hidden">
             <div
-                className="flex items-baseline max-lg:gap-8 overflow-x-auto scrollbar-none scroll-smooth">
+                className="flex items-baseline gap-20 max-lg:gap-8 overflow-x-auto scrollbar-none scroll-smooth">
                 {categoryItems.map((item, index) => (
                     <CategoryItem key={index} title={item.title} imageSrc={item.imageSrc} slug={item.slug}/>))}
             </div>

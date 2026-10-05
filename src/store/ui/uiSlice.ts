@@ -1,50 +1,76 @@
-import {createSlice} from "@reduxjs/toolkit";
-import type {uiState} from "./uiTypes.ts";
+import {createSlice, type PayloadAction} from "@reduxjs/toolkit";
+import type {Confirmation, uiState} from "./uiTypes.ts";
 
 const initialState: uiState = {
-    isModalOpen: false,
+    isQuickViewModalOpen: false,
+    confirmationModal: null,
+    isProductSharingModalOpen: false,
     selectedProduct: null,
-    isCartSidebarOpen: false,
-    isWishlistSidebarOpen: false,
+    activeSidebar: null,
+
+    productAlert: null,
 }
 
 const uiSlice = createSlice({
     name: "ui",
     initialState,
     reducers: {
-        showModal: (state) => {
-            state.isModalOpen = true;
+        showQuickViewModal: (state) => {
+            state.isQuickViewModalOpen = true;
+        },
+        showProductSharingModal: (state) => {
+            state.isProductSharingModalOpen = true;
+        },
+        hideProductSharingModal: (state) => {
+            state.isProductSharingModalOpen = false;
+        },
+        showConfirmationModal: (state, action: PayloadAction<Confirmation>) => {
+            state.confirmationModal = action.payload;
         },
         hideModal: (state) => {
-            state.isModalOpen = false;
+            state.isQuickViewModalOpen = false;
+            state.confirmationModal = null;
         },
         showCartSidebar: (state) => {
-            state.isCartSidebarOpen = true;
+            state.activeSidebar = "cart";
         },
         hideCartSidebar: (state) => {
-            state.isCartSidebarOpen = false;
+            state.activeSidebar = null;
         },
         showWishlistSidebar: (state) => {
-            state.isWishlistSidebarOpen = true;
+            state.activeSidebar = "wishlist";
         },
         hideWishlistSidebar: (state) => {
-            state.isWishlistSidebarOpen = false;
+            state.activeSidebar = null;
         },
         setSelectedProduct: (state, action) => {
             state.selectedProduct = action.payload;
+        },
+        showProductAlert: (state, action) => {
+            state.productAlert = {
+                ...action.payload,
+            }
+        },
+        hideProductAlert: (state) => {
+            state.productAlert = null
         }
     }
 });
 
 
 export const {
-    showModal,
+    showQuickViewModal,
+    showConfirmationModal,
     hideModal,
     showWishlistSidebar,
     hideWishlistSidebar,
     showCartSidebar,
     hideCartSidebar,
-    setSelectedProduct
+    setSelectedProduct,
+    showProductAlert,
+    hideProductAlert,
+    showProductSharingModal,
+    hideProductSharingModal
 } = uiSlice.actions;
 
 export default uiSlice.reducer;

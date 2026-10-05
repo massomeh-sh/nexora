@@ -1,14 +1,99 @@
-import type {JSX} from 'react';
-import {Outlet} from "react-router";
+import {type JSX, useEffect} from 'react';
+import {Outlet, ScrollRestoration} from "react-router";
 import Header from "../components/Header.tsx";
 import MobileNavigation from "../components/MobileNavigation.tsx";
+import WishlistAlert from "../components/wishlist/WishlistAlert.tsx";
+import WishlistSidebar from "../components/wishlist/WishlistSidebar.tsx";
+import {useQuery} from "@tanstack/react-query";
+import {getMe} from "../api/auth.ts";
+import {useAppDispatch} from "../hooks/useAppDispatch.ts";
+import {setUser} from "../store/user/userSlice.ts";
+import {getWishlist} from "../api/wishlist.ts";
+import {setWishlist} from "../store/wishlist/wishlistSlice.ts";
+import {getCart} from "../api/cart.ts";
+import {setCart} from "../store/cart/cartSlice.ts";
+import CartSidebar from "../components/cart/CartSidebar.tsx";
+import {useAppSelector} from "../hooks/useAppSelector.ts";
+import QuickViewModal from "../components/quick-view/QuickViewModal.tsx";
+import WishlistConfirmationModal from "../components/wishlist/WishlistConfirmationModal.tsx";
+import CartConfirmationModal from "../components/cart/CartConfirmationModal.tsx";
+import {toast} from "sonner";
+import {ApiError} from "../api/apiClient.ts";
+import TopLoadingBar from "../components/TopLoadingBar.tsx";
+import ProductSharing from "../components/product/ProductSharing.tsx";
 
 function LayoutPage(): JSX.Element {
+    const dispatch = useAppDispatch();
+    const selectedProduct = useAppSelector(state => state.ui.selectedProduct);
+
+    const {data: user} = useQuery({
+        queryKey: ["me"],
+        queryFn: getMe,
+        retry: false
+    });
+
+    const userId = user?.data?._id;
+
+    const {data: wishlist, isError: wishlistIsError, error: wishlistError} = useQuery({
+        queryKey: ["wishlist", {
+            user: userId
+        }],
+        queryFn: getWishlist,
+        enabled: !!userId,
+    });
+
+    const {data: serverCart, isError: cartIsError, error: cartError} = useQuery({
+        queryKey: ["cart", {user: userId}],
+        queryFn: getCart,
+        enabled: !!userId,
+    });
+
+    useEffect(() => {
+        if (user?.data) {
+            dispatch(setUser(user.data));
+        }
+    }, [user, dispatch]);
+
+    useEffect(() => {
+        if (wishlist?.data) {
+            dispatch(setWishlist(wishlist.data.products));
+        }
+    }, [wishlist, dispatch]);
+
+
+    useEffect(() => {
+        if (serverCart?.data) {
+            dispatch(setCart(serverCart?.data));
+        }
+    }, [serverCart, dispatch]);
+
+    useEffect(() => {
+        if (wishlistIsError) {
+            const error = wishlistError instanceof ApiError ? wishlistError.message : "دریافت لیست علاقه‌مندی‌ها با خطا مواجه شد";
+            toast.error(error);
+        }
+
+        if (cartIsError) {
+            const error = cartError instanceof ApiError ? cartError.message : "دریافت سبد خرید با خطا مواجه شد";
+            toast.error(error);
+        }
+    }, [cartError, cartIsError, wishlistError, wishlistIsError]);
+
+
     return (
         <>
+            <ScrollRestoration/>
+            <TopLoadingBar/>
             <Header/>
             <MobileNavigation/>
-            <main>
+            <WishlistAlert/>
+            <WishlistSidebar/>
+            <CartSidebar/>
+            <QuickViewModal key={selectedProduct?._id}/>
+            <ProductSharing/>
+            <WishlistConfirmationModal/>
+            <CartConfirmationModal/>
+            <main className="px-32 py-8 max-lg:px-6">
                 <Outlet/>
             </main>
         </>

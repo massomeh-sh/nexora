@@ -1,6 +1,8 @@
 const asyncHandler = require('express-async-handler');
 const Product = require('../models/Product');
 const Category = require('../models/Category');
+const mongoose = require('mongoose');
+const Cart = require('../models/Cart');
 
 // @desc    گرفتن لیست محصولات (با فیلتر، جستجو و صفحه‌بندی)
 // @route   GET /api/products
@@ -132,18 +134,56 @@ const getDealProducts = asyncHandler(async (req, res) => {
     res.json({success: true, count: deals.length, data: deals});
 });
 
+
 // @desc    گرفتن جزئیات یک محصول
 // @route   GET /api/products/:id
 // @access  Public
 const getProductById = asyncHandler(async (req, res) => {
-    const product = await Product.findById(req.params.id).populate(
-        'category',
-        'name slug'
-    );
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+        res.status(400);
+        throw new Error('شناسه محصول نامعتبر است');
+    }
 
-    if (!product) {
+    const product = await Product.findById(req.params.id)
+        .populate('category')
+        .lean();
+
+    if (!product || !product.isActive) {
         res.status(404);
         throw new Error('محصول یافت نشد');
+    }
+
+    const hasDiscount =
+        product.discountPrice > 0 && product.discountPrice < product.price;
+
+    product.discountPercent = hasDiscount
+        ? Math.round(((product.price - product.discountPrice) / product.price) * 100)
+        : 0;
+
+    product.inStock = product.stock > 0;
+
+    // تعداد این محصول داخل سبد کاربر (برای مهمان یا محصول خارج از سبد: 0)
+    product.quantity = 0;
+
+    if (req.user) {
+        const cart = await Cart.findOne(
+            {user: req.user._id, 'items.product': product._id},
+            {'items.$': 1}
+        ).lean();
+
+        product.quantity = cart?.items?.[0]?.quantity ?? 0;
+    }
+
+    product.inStock = product.stock > 0;
+    product.quantity = 0;
+
+    if (req.user) {
+        const cart = await Cart.findOne(
+            {user: req.user._id, 'items.product': product._id},
+            {'items.$': 1}
+        ).lean();
+
+        product.quantity = cart?.items?.[0]?.quantity ?? 0;
     }
 
     res.json({success: true, data: product});

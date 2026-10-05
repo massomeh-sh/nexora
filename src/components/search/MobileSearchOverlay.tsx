@@ -1,6 +1,8 @@
 import {type JSX, type RefObject, useEffect, useRef, useState} from 'react';
 import {categories} from "../../constants/categories-dropdown.ts";
 import TopSearches from "./TopSearches.tsx";
+import searchBanner from "../../assets/بنر تبلیغاتی2.jpg";
+import {Link} from "react-router";
 
 interface MobileSearchOverlayProps {
     closeSearch: () => void;
@@ -82,7 +84,10 @@ function MobileSearchOverlay({closeSearch, inputRef}: MobileSearchOverlayProps):
             <div className="border border-light-gray p-3 flex flex-col">
                 <TopSearches/>
                 <div className="bg-light-gray h-[1px] w-full my-4"/>
-                <h2 className="text-darkest-gray text-lg">بازدید های اخیر</h2>
+                <Link to="/category/fashion/women-clothing" className="block mt-3 w-full">
+                    <img src={searchBanner} alt="بنر تبلیغاتی"
+                         className="object-cover w-full h-auto 2xl:h-40 rounded-sm"/>
+                </Link>
             </div>
         </div>
     );

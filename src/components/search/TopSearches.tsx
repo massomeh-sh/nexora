@@ -9,7 +9,7 @@ function TopSearches(): JSX.Element {
             <div className="flex gap-2 flex-wrap mt-2">
                 {topSearches.map((s) => (
                     <Link to={s.slug} key={s.id}
-                          className="inline-block border hover:text-primary-blue text-dark-gray outline-2 outline-transparent hover:outline-primary-blue cursor-pointer border-light-gray px-3 py-1 text-sm transition-colors duration-300 rounded-sm">{s.name}</Link>
+                          className="inline-block border shadow-sm hover:text-primary-blue text-dark-gray outline-2 outline-transparent hover:outline-primary-blue cursor-pointer border-light-gray px-3 py-1 text-sm transition-colors duration-300 rounded-sm">{s.name}</Link>
                 ))}
             </div>
         </div>

@@ -43,7 +43,7 @@ function Navbar(): JSX.Element {
                             <button
                                 aria-expanded={showCategory}
                                 onMouseEnter={() => setShowCategory(true)}
-                                className={`mr-6 font-medium cursor-pointer flex items-center gap-2 py-2 relative after:absolute after:bottom-0 after:left-1/2 after:h-[2px] after:w-0 after:bg-primary-blue after:transition-all after:duration-300 after:-translate-x-1/2 hover:after:w-full ${showCategory && "after:w-full"}`}>
+                                className={`mr-4 font-medium cursor-pointer flex items-center gap-2 py-2 relative after:absolute after:bottom-0 after:left-1/2 after:h-[2px] after:w-0 after:bg-primary-blue after:transition-all after:duration-300 after:-translate-x-1/2 hover:after:w-full ${showCategory && "after:w-full"}`}>
                                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
                                      fill="none">
                                     <path d="M4 6H20M4 12H20M4 18H20" stroke="#000000" strokeWidth="2"

@@ -10,9 +10,10 @@ export const signupSchema = z.object({
     phone: z.string().min(1, "لطفا شماره تلفن خود را وارد کنید").regex(PHONE_RULE,
         "لطفا یک شماره تلفن معتبر وارد کنید."),
     password: z.string().min(1, "لطفا رمز عبور را وارد کنید").regex(PASSWORD_RULE,
-        "رمز عبور باید حداقل ۸ کاراکتر و شامل حروف بزرگ، کوچک، عدد و کاراکتر خاص باشد"
+        "رمز عبور باید حداقل ۸ کاراکتر و شامل حروف بزرگ، کوچک، عدد باشد"
     ),
     confirmPassword: z.string().min(1, "لطفا تکرار رمز عبور را وارد کنید"),
+    agreement: z.literal(true, {error: "برای ثبت نام باید با شرایط استفاده موافقت کنید"})
 }).refine((data) => data.password === data.confirmPassword, {
     message: "رمز عبور و تکرار رمز عبور یکسان نیستند",
     path: ["confirmPassword"],
@@ -29,3 +30,14 @@ export const signInSchema = z.object({
 export const forgotPasswordSchema = z.object({
     email: z.string().min(1, "لطفا این قسمت را خالی نگذارید").email("لطفا یک ایمیل معتبر وارد کنید")
 });
+
+
+export const resetPasswordSchema = z.object({
+    password: z.string().min(1, "لطفا رمز عبور را وارد کنید").regex(PASSWORD_RULE,
+        "رمز عبور باید حداقل ۸ کاراکتر و شامل حروف بزرگ، کوچک، عدد و کاراکتر خاص باشد"
+    ),
+    confirmPassword: z.string().min(1, "لطفا تکرار رمز عبور را وارد کنید"),
+}).refine((data) => data.password === data.confirmPassword, {
+    message: "رمز عبور و تکرار رمز عبور یکسان نیستند",
+    path: ["confirmPassword"],
+})

@@ -1,3 +1,3 @@
-export function priceFormater(price:number){
+export function priceFormater(price: number) {
     return price.toLocaleString();
 }

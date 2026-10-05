@@ -4,9 +4,7 @@ import type {RootState} from "../index.ts";
 import type {Product} from "../../types/product.ts";
 
 const initialState: WishlistState = {
-    items: [],
-    loading: false,
-    error: null
+    items: []
 }
 
 const wishlistSlice = createSlice({
@@ -22,11 +20,19 @@ const wishlistSlice = createSlice({
                 state.items.push(action.payload);
             }
         },
-        addToWishlist(state, action) {
+        addLocalToWishlist(state, action) {
+            const exist = state.items.find((it) => it._id === action.payload._id);
+            if (exist) return;
             state.items.push(action.payload);
         },
-        removeFromWishlist(state, action) {
-            state.items = state.items.filter((item) => item._id !== action.payload._id);
+        removeLocalFromWishlist(state, action) {
+            state.items = state.items.filter((item) => item._id !== action.payload);
+        },
+        setWishlist(state, action) {
+            state.items = action.payload;
+        },
+        clearLocalWishlist(state) {
+            state.items = []
         }
     }
 });
@@ -34,10 +40,16 @@ const wishlistSlice = createSlice({
 
 const wishlistItems = (state: RootState) => state.wishlist.items;
 
-export const itemIsInWishlist = () => createSelector([wishlistItems, (_state: RootState, productId: string) => productId], (wishlistItems: Product[], productId) => {
+export const makeSelectIsInWishlist = () => createSelector([wishlistItems, (_state: RootState, productId: string) => productId], (wishlistItems: Product[], productId) => {
     return wishlistItems.some(((item) => item._id === productId));
 })
 
-export const {toggleLocalWishlist, addToWishlist, removeFromWishlist} = wishlistSlice.actions;
+export const {
+    toggleLocalWishlist,
+    addLocalToWishlist,
+    removeLocalFromWishlist,
+    setWishlist,
+    clearLocalWishlist
+} = wishlistSlice.actions;
 
 export default wishlistSlice.reducer;

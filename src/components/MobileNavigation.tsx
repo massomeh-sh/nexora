@@ -1,8 +1,14 @@
 import {type JSX} from 'react';
 import {NavLink} from "react-router";
 import * as React from "react";
+import {useAppSelector} from "../hooks/useAppSelector.ts";
 
 function MobileNavigation(): JSX.Element {
+    const isAuthenticated = useAppSelector(state => state.user.isAuthenticated);
+    const cart = useAppSelector(state => state.cart);
+    const wishlistItems = useAppSelector(state => state.wishlist.items);
+
+    const cartItems = isAuthenticated ? cart?.cart?.items : cart.localItems;
 
     const handleAnimate = (e: React.MouseEvent<HTMLLIElement>) => {
         const li = e.currentTarget;
@@ -60,26 +66,38 @@ function MobileNavigation(): JSX.Element {
                 <li className="mobileNav-item" onClick={handleAnimate} onMouseEnter={handleAnimate}>
                     <NavLink to="/wishlist"
                              className={({isActive}) => `mobileNav-item-link ${isActive ? "text-primary-blue" : "text-dark-gray"} z-10`}>
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
-                            <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"
-                                  d="M12.01 6.001C6.5 1 1 8 5.782 13.001L12.011 20l6.23-7C23 8 17.5 1 12.01 6.002Z"/>
-                        </svg>
-                        <span>علاقه مندی</span>
+                        <div className="flex flex-col gap-2 items-center justify-center relative">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none"
+                                 viewBox="0 0 24 24">
+                                <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"
+                                      d="M12.01 6.001C6.5 1 1 8 5.782 13.001L12.011 20l6.23-7C23 8 17.5 1 12.01 6.002Z"/>
+                            </svg>
+                            <span>علاقه مندی</span>
+                            <span aria-hidden={true}
+                                  className={`bg-primary-red w-4.5 h-4 text-white absolute right-3 top-2.5 flex items-center justify-center rounded-sm leading-none ${wishlistItems?.length === 0 ? "hidden" : "block"}`}>{wishlistItems?.length}</span>
+
+                        </div>
                     </NavLink>
                 </li>
                 <li className="mobileNav-item" onClick={handleAnimate} onMouseEnter={handleAnimate}>
                     <NavLink to="/cart"
                              className={({isActive}) => `mobileNav-item-link ${isActive ? "text-primary-blue" : "text-dark-gray"} z-10`}>
-                        <svg aria-hidden="true"
-                             xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
-                            <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"
-                                  d="M9 10V6a3 3 0 0 1 3-3v0a3 3 0 0 1 3 3v4m3-2 .917 11.923A1 1 0 0 1 17.92 21H6.08a1 1 0 0 1-.997-1.077L6 8h12Z"/>
-                        </svg>
-                        <span>سبد خرید</span>
+                        <div className="flex flex-col gap-2 items-center justify-center relative">
+                            <svg aria-hidden="true"
+                                 xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none"
+                                 viewBox="0 0 24 24">
+                                <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"
+                                      d="M9 10V6a3 3 0 0 1 3-3v0a3 3 0 0 1 3 3v4m3-2 .917 11.923A1 1 0 0 1 17.92 21H6.08a1 1 0 0 1-.997-1.077L6 8h12Z"/>
+                            </svg>
+                            <span>سبد خرید</span>
+                            <span aria-hidden={true}
+                                  className={`bg-primary-red w-4.5 h-4 text-white absolute right-2 top-3 flex items-center justify-center rounded-sm leading-none ${cartItems?.length === 0 ? "hidden" : "block"}`}>{cartItems?.length}</span>
+
+                        </div>
                     </NavLink>
                 </li>
                 <li className="mobileNav-item" onClick={handleAnimate} onMouseEnter={handleAnimate}>
-                    <NavLink to="/auth"
+                    <NavLink to={isAuthenticated ? "/dashboard" : "/auth"}
                              className={({isActive}) => `mobileNav-item-link ${isActive ? "text-primary-blue" : "text-dark-gray"} z-10`}>
                         <svg xmlns="http://www.w3.org/2000/svg"
                              width="24" height="24"

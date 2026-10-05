@@ -11,7 +11,7 @@ function AmazingOffers() {
         retry: 2,
     });
 
-    if (data?.data.length === 0 || !data) return null;
+    if (!data || data?.data.length === 0) return null;
 
 
     return (

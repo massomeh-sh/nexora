@@ -3,58 +3,118 @@ const Cart = require('../models/Cart');
 const Order = require('../models/Order');
 const Product = require('../models/Product');
 
+const getEffectivePrice = (product) =>
+    product.discountPrice > 0 ? product.discountPrice : product.price;
+
+// برگردوندن موجودی محصولاتی که قبلاً کم شدن
+const restoreStock = async (reserved) => {
+  await Promise.all(
+      reserved.map((r) =>
+          Product.updateOne({ _id: r.product }, { $inc: { stock: r.quantity } })
+      )
+  );
+};
+
+// برگردوندن آیتم‌های سبد در صورت شکست ثبت سفارش
+const restoreCart = async (userId, items) => {
+  if (!items.length) return;
+  await Cart.updateOne(
+      { user: userId },
+      { $push: { items: { $each: items } } }
+  );
+};
+
 // @desc    ثبت سفارش جدید بر اساس سبد خرید فعلی
 // @route   POST /api/orders
 // @access  Private
 const createOrder = asyncHandler(async (req, res) => {
   const { shippingAddress, paymentMethod } = req.body;
 
-  const cart = await Cart.findOne({ user: req.user._id }).populate(
-    'items.product'
-  );
+  if (!shippingAddress || !paymentMethod) {
+    res.status(400);
+    throw new Error('آدرس ارسال و روش پرداخت الزامی است');
+  }
 
-  if (!cart || cart.items.length === 0) {
+  // سبد رو به‌صورت atomic "برمی‌داریم" و خالی می‌کنیم؛
+  // اگه دو درخواست هم‌زمان بیاد فقط یکی‌شون سبد پر پیدا می‌کنه
+  const cart = await Cart.findOneAndUpdate(
+      { user: req.user._id, 'items.0': { $exists: true } },
+      { $set: { items: [] } },
+      { new: false }
+  ).populate('items.product');
+
+  if (!cart) {
     res.status(400);
     throw new Error('سبد خرید شما خالی است');
   }
 
-  const orderItems = cart.items.map((item) => ({
-    product: item.product._id,
-    name: item.product.name,
-    image: item.product.images?.[0] || '',
+  const originalItems = cart.items.map((item) => ({
+    product: item.product?._id || item.product,
     quantity: item.quantity,
     price: item.price,
   }));
 
-  const itemsPrice = orderItems.reduce(
-    (acc, item) => acc + item.price * item.quantity,
-    0
-  );
-  const shippingPrice = itemsPrice > 1000000 ? 0 : 50000; // بالای ۱۰۰ هزار تومان ارسال رایگان
-  const totalPrice = itemsPrice + shippingPrice;
+  const reserved = []; // آیتم‌هایی که موجودی‌شون کم شده
 
-  // کم کردن موجودی محصولات
-  for (const item of cart.items) {
-    await Product.findByIdAndUpdate(item.product._id, {
-      $inc: { stock: -item.quantity },
+  try {
+    // محصول حذف‌شده
+    if (cart.items.some((item) => !item.product)) {
+      res.status(400);
+      throw new Error('یکی از محصولات سبد خرید دیگر موجود نیست');
+    }
+
+    // قیمت از DB خونده می‌شه، نه از snapshot قدیمی سبد
+    const orderItems = cart.items.map((item) => ({
+      product: item.product._id,
+      name: item.product.name,
+      image: item.product.images?.[0] || '',
+      quantity: item.quantity,
+      price: getEffectivePrice(item.product),
+    }));
+
+    // کم کردن atomic موجودی: فقط اگه stock کافی باشه کم می‌شه
+    for (const item of cart.items) {
+      const result = await Product.updateOne(
+          { _id: item.product._id, stock: { $gte: item.quantity } },
+          { $inc: { stock: -item.quantity } }
+      );
+
+      if (result.modifiedCount === 0) {
+        res.status(400);
+        throw new Error(`موجودی محصول «${item.product.name}» کافی نیست`);
+      }
+
+      reserved.push({ product: item.product._id, quantity: item.quantity });
+    }
+
+    const itemsPrice = orderItems.reduce(
+        (acc, item) => acc + item.price * item.quantity,
+        0
+    );
+    const shippingPrice = itemsPrice > 1000000 ? 0 : 50000; // بالای ۱۰۰ هزار تومان ارسال رایگان
+    const totalPrice = itemsPrice + shippingPrice;
+
+    const order = await Order.create({
+      user: req.user._id,
+      items: orderItems,
+      shippingAddress,
+      paymentMethod,
+      itemsPrice,
+      shippingPrice,
+      totalPrice,
     });
+
+    res.status(201).json({ success: true, data: order });
+  } catch (error) {
+    // هر خطایی: موجودی و سبد به حالت اول برگردن
+    await restoreStock(reserved).catch((e) =>
+        console.error('restoreStock failed:', e)
+    );
+    await restoreCart(req.user._id, originalItems).catch((e) =>
+        console.error('restoreCart failed:', e)
+    );
+    throw error;
   }
-
-  const order = await Order.create({
-    user: req.user._id,
-    items: orderItems,
-    shippingAddress,
-    paymentMethod,
-    itemsPrice,
-    shippingPrice,
-    totalPrice,
-  });
-
-  // خالی کردن سبد خرید بعد از ثبت سفارش
-  cart.items = [];
-  await cart.save();
-
-  res.status(201).json({ success: true, data: order });
 });
 
 // @desc    گرفتن سفارش‌های کاربر لاگین‌کرده

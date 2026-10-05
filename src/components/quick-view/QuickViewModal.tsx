@@ -1,19 +1,60 @@
 import Modal from "../../UI/Modal.tsx";
 import {useAppDispatch} from "../../hooks/useAppDispatch.ts";
-import {hideModal} from "../../store/ui/uiSlice.ts";
+import {hideModal, showCartSidebar} from "../../store/ui/uiSlice.ts";
 import {useAppSelector} from "../../hooks/useAppSelector.ts";
 import {priceFormater} from "../../util/priceFormater.ts";
 import ModalProductImages from "./ModalProductImages.tsx";
+import {
+    addLocalItem, makeSelectIsInCart, makeSelectProductQuantity,
+} from "../../store/cart/cartSlice.ts";
+import {useMemo, useState} from "react";
+import useAddToCart from "../../hooks/useAddToCart.ts";
+import DiscountPrice from "../../UI/DiscountPrice.tsx";
+import UpdateQuantity from "../../UI/product/UpdateQuantity.tsx";
 
 function QuickViewModal() {
-    const isModalOpen = useAppSelector(state => state.ui.isModalOpen);
+    const isModalOpen = useAppSelector(state => state.ui.isQuickViewModalOpen);
     const selectedProduct = useAppSelector(state => state.ui.selectedProduct);
     const dispatch = useAppDispatch();
+    const isAuthenticated = useAppSelector(state => state.user.isAuthenticated);
+    const selectIsInCart = useMemo(() => makeSelectIsInCart(), []);
+    const currentCartItem = useAppSelector(state => {
+        if (!selectedProduct) return;
+        return selectIsInCart(state, selectedProduct._id)
+    });
+
+    const selectProductQuantity = useMemo(() => makeSelectProductQuantity(), []);
+
+    const productQuantity = useAppSelector((state) => {
+        if (!selectedProduct) return 1;
+        return selectProductQuantity(state, selectedProduct._id);
+    });
+
+    const [quantity, setQuantity] = useState(productQuantity);
+
+    const {mutate} = useAddToCart()
+
+    const handleAddToCart = () => {
+        if (!selectedProduct) return;
+        if (isAuthenticated) {
+            mutate({productId: selectedProduct._id, quantity});
+            dispatch(hideModal());
+            dispatch(showCartSidebar());
+        } else {
+            dispatch(addLocalItem({product: selectedProduct, quantity: Number(quantity)}));
+            dispatch(hideModal());
+            dispatch(showCartSidebar());
+        }
+    }
+
+    const handleUpdateQuantity = (newQuantity: number) => {
+        setQuantity(newQuantity);
+    }
 
     if (!selectedProduct) return null;
 
     return (
-        <Modal open={isModalOpen} close={() => dispatch(hideModal())}>
+        <Modal open={isModalOpen} close={() => dispatch(hideModal())} className="w-[90%] max-w-6xl max-h-[90%] m-auto">
             <div className="flex max-md:flex-col gap-5 p-6 relative">
                 <button aria-label="بستن نمایش سریع محصولات" onClick={() => dispatch(hideModal())}
                         className="absolute bg-primary-blue text-white top-2 left-2 p-1.5 max-lg:p-0.5 cursor-pointer z-10">
@@ -27,11 +68,9 @@ function QuickViewModal() {
                 <div className="w-1/2 max-md:w-full flex flex-col gap-4 px-2">
                     <h1 className="text-2xl max-md:text-lg font-normal">{selectedProduct.name}</h1>
                     <div className="flex gap-5 text-lg">
-                        <p className="relative text-dark-gray">
-                            <span>{priceFormater(selectedProduct.discountPrice)}</span>
-                            <span className="absolute w-full h-0.5 bg-dark-gray top-1/2 left-0"/>
-                        </p>
-                        <span className="text-primary-blue">{priceFormater(selectedProduct.price)} تومان</span>
+                        <DiscountPrice discount={selectedProduct.discountPrice}/>
+                        <span
+                            className="text-primary-blue">{priceFormater(selectedProduct.price)} تومان</span>
                     </div>
                     <ul className="flex gap-5 text-dark-gray">
                         <li className="space-x-2">
@@ -47,7 +86,7 @@ function QuickViewModal() {
                         <li>۲ دیدگاه</li>
                     </ul>
                     <div className="bg-light-gray w-full h-0.5 my-5"/>
-                    <p className="text-dark-gray text-lg max-md:text-sm">{selectedProduct.description}</p>
+                    <p className="text-dark-gray text-lg max-md:text-sm">{selectedProduct.description || "hi"}</p>
                     <div className="flex gap-8">
                         <p className="flex items-center gap-2">
                             <svg stroke="currentColor" fill="currentColor" strokeWidth="0" viewBox="0 0 24 24"
@@ -66,20 +105,11 @@ function QuickViewModal() {
                             <span>پرسش از فروشنده</span>
                         </p>
                     </div>
-                    <div dir="ltr" className="mt-5 flex gap-5">
+                    <div dir="ltr" className="mt-5 flex gap-5 max-lg:text-xs">
                         <button
-                            className="bg-black text-white w-3/4 p-2 rounded-sm cursor-pointer hover:opacity-80 transition-opacity duration-300 max-md:text-sm">افزودن
-                            به سبد خرید
-                        </button>
-                        <div className="bg-light-gray w-1/4 flex justify-between items-center p-2 rounded-sm">
-                            <button
-                                className="bg-white px-3 py-1 hover:bg-primary-blue rounded-sm cursor-pointer transition-colors duration-300">+
-                            </button>
-                            <span>1</span>
-                            <button
-                                className="bg-white px-3 py-1 hover:bg-primary-blue rounded-sm cursor-pointer transition-colors duration-300">-
-                            </button>
-                        </div>
+                            onClick={handleAddToCart}
+                            className="bg-black text-white w-full p-2 rounded-sm cursor-pointer hover:opacity-80 transition-opacity duration-300 max-md:text-sm">{currentCartItem?.isInCart ? "بروزرسانی سبد خرید" : "افزودن به سبد خرید"}</button>
+                        <UpdateQuantity quantity={quantity} onQuantityChange={handleUpdateQuantity}/>
                     </div>
                 </div>
             </div>

@@ -9,9 +9,9 @@ interface CategoryItemProps {
 
 function categoryItem({imageSrc, title, slug}: CategoryItemProps): JSX.Element {
     return (
-        <Link to={slug} className="flex flex-col grow items-center justify-center gap-2 min-w-[85px]">
+        <Link to={slug} className="flex flex-col grow items-center justify-center gap-2 min-w-[100px]">
             <img src={imageSrc} className="w-28" alt={title}/>
-            <p className="text-darkest-gray max-lg:text-[12px]">{title}</p>
+            <p className="text-darkest-gray text-sm max-lg:text-[12px]">{title}</p>
         </Link>
     );
 }

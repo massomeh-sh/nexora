@@ -2,58 +2,83 @@ const asyncHandler = require('express-async-handler');
 const crypto = require('crypto');
 const User = require('../models/User');
 const generateToken = require('../utils/generateToken');
-const { setTokenCookie, clearTokenCookie } = require('../utils/tokenCookie');
+const {setTokenCookie, clearTokenCookie} = require('../utils/tokenCookie');
 const sendEmail = require('../utils/sendEmail');
+const {
+    verificationEmailText,
+    resendVerificationEmailText,
+    resetPasswordEmailText,
+} = require('../utils/emailTemplates');
 
 // @desc    ثبت‌نام کاربر جدید (مشتری یا فروشنده)
 // @route   POST /api/auth/register
 // @access  Public
 const registerUser = asyncHandler(async (req, res) => {
-    const { name, email, phone, password } = req.body;
+    const {name, email, phone, password} = req.body;
 
     if (!name || !email || !password) {
         res.status(400);
         throw new Error('لطفا تمام فیلدهای الزامی را پر کنید');
     }
 
-    const userExists = await User.findOne({ email });
-    if (userExists) {
-        res.status(400);
-        throw new Error('کاربری با این ایمیل قبلا ثبت‌نام کرده است');
+    let user = await User.findOne({email});
+
+    // اگر کاربر وجود داشته باشد
+    if (user) {
+        // اگر ایمیل قبلا تایید شده باشد، اجازه ثبت‌نام مجدد نمی‌دهیم
+        if (user.isVerified) {
+            res.status(400);
+            throw new Error('کاربری با این ایمیل قبلا ثبت‌نام کرده است');
+        }
+
+        // کاربر وجود دارد ولی هنوز ایمیلش را تایید نکرده
+        user.name = name;
+        user.phone = phone;
+        user.password = password;
+    } else {
+        // کاربر جدید
+        user = new User({
+            name,
+            email,
+            phone,
+            password,
+        });
     }
 
-    const user = await User.create({ name, email, phone, password });
-
-    // به‌جای لاگین مستقیم، ایمیل تایید برای کاربر ارسال می‌شود
+    // ساخت توکن تایید
     const verificationToken = user.getVerificationToken();
-    await user.save({ validateBeforeSave: false });
 
-    const verifyUrl = `${process.env.CLIENT_URL}/verify-email/${verificationToken}`;
+    await user.save({validateBeforeSave: false});
 
-    const html = `
-    <div dir="rtl" style="font-family: Tahoma, sans-serif;">
-      <h2>تایید ایمیل</h2>
-      <p>سلام ${user.name}، برای فعال‌سازی حساب کاربری خود روی لینک زیر کلیک کنید. این لینک تا ۲۴ ساعت دیگر معتبر است.</p>
-      <a href="${verifyUrl}">${verifyUrl}</a>
-      <p>اگر این ثبت‌نام را شما انجام نداده‌اید، این ایمیل را نادیده بگیرید.</p>
-    </div>
-  `;
+    const verifyUrl = `${process.env.CLIENT_URL}/auth/verify-email/${verificationToken}`;
 
     try {
         await sendEmail({
             to: user.email,
             subject: 'تایید ایمیل - نکسورا',
-            html,
+            text: verificationEmailText({
+                name: user.name,
+                verifyUrl
+            }),
         });
     } catch (error) {
         console.error('خطای ارسال ایمیل تایید:', error);
-        // اگر ارسال ایمیل شکست خورد، توکن را پاک می‌کنیم تا کاربر بتواند دوباره درخواست بدهد
+
+        // اگر ارسال ایمیل شکست خورد، توکن را پاک می‌کنیم
         user.verificationToken = undefined;
         user.verificationTokenExpire = undefined;
-        await user.save({ validateBeforeSave: false });
+
+        await user.save({validateBeforeSave: false});
 
         res.status(500);
-        throw new Error('ثبت‌نام انجام شد اما ارسال ایمیل تایید با خطا مواجه شد، لطفا دوباره درخواست ارسال بدهید');
+
+        const err = new Error(
+            'ثبت‌نام انجام شد اما ارسال ایمیل تایید با خطا مواجه شد، لطفا دوباره درخواست ارسال بدهید'
+        );
+
+        err.code = 'REGISTER_EMAIL_FAILED';
+
+        throw err;
     }
 
     res.status(201).json({
@@ -71,9 +96,9 @@ const registerUser = asyncHandler(async (req, res) => {
 // @route   POST /api/auth/login
 // @access  Public
 const loginUser = asyncHandler(async (req, res) => {
-    const { email, password } = req.body;
+    const {email, password} = req.body;
 
-    const user = await User.findOne({ email }).select('+password');
+    const user = await User.findOne({email}).select('+password');
 
     if (!user || !(await user.matchPassword(password))) {
         res.status(401);
@@ -95,6 +120,7 @@ const loginUser = asyncHandler(async (req, res) => {
             _id: user._id,
             name: user.name,
             email: user.email,
+            phone: user.phone,
         },
     });
 });
@@ -104,7 +130,7 @@ const loginUser = asyncHandler(async (req, res) => {
 // @access  Public
 const logoutUser = asyncHandler(async (req, res) => {
     clearTokenCookie(res);
-    res.json({ success: true, message: 'با موفقیت خارج شدید' });
+    res.json({success: true, message: 'با موفقیت خارج شدید'});
 });
 
 // @desc    دریافت اطلاعات کاربر لاگین‌کرده
@@ -112,16 +138,23 @@ const logoutUser = asyncHandler(async (req, res) => {
 // @access  Private
 const getMe = asyncHandler(async (req, res) => {
     const user = await User.findById(req.user._id);
-    res.json({ success: true, data: user });
+    res.json({
+        success: true, data: {
+            _id: user._id,
+            name: user.name,
+            email: user.email,
+            phone: user.phone,
+        }
+    });
 });
 
 // @desc    درخواست بازیابی رمز عبور (ارسال ایمیل حاوی لینک)
 // @route   POST /api/auth/forgot-password
 // @access  Public
 const forgotPassword = asyncHandler(async (req, res) => {
-    const { email } = req.body;
+    const {email} = req.body;
 
-    const user = await User.findOne({ email });
+    const user = await User.findOne({email});
 
     // به‌عمد پیام موفقیت یکسان برمی‌گردانیم چه ایمیل وجود داشته باشد چه نه،
     // تا کسی نتواند با این endpoint بفهمد چه ایمیل‌هایی در سیستم ثبت‌نام کرده‌اند
@@ -133,24 +166,15 @@ const forgotPassword = asyncHandler(async (req, res) => {
     }
 
     const resetToken = user.getResetPasswordToken();
-    await user.save({ validateBeforeSave: false });
+    await user.save({validateBeforeSave: false});
 
-    const resetUrl = `${process.env.CLIENT_URL}/reset-password/${resetToken}`;
-
-    const html = `
-    <div dir="rtl" style="font-family: Tahoma, sans-serif;">
-      <h2>بازیابی رمز عبور</h2>
-      <p>برای تعیین رمز عبور جدید، روی لینک زیر کلیک کنید. این لینک تا ۱۰ دقیقه دیگر معتبر است.</p>
-      <a href="${resetUrl}">${resetUrl}</a>
-      <p>اگر این درخواست را شما نداده‌اید، این ایمیل را نادیده بگیرید.</p>
-    </div>
-  `;
+    const resetUrl = `${process.env.CLIENT_URL}/auth/reset-password/${resetToken}`;
 
     try {
         await sendEmail({
             to: user.email,
             subject: 'بازیابی رمز عبور - کارتیفای',
-            html,
+            text: resetPasswordEmailText({resetUrl}),
         });
 
         res.json({
@@ -161,7 +185,7 @@ const forgotPassword = asyncHandler(async (req, res) => {
         // اگر ارسال ایمیل شکست خورد، توکن را پاک می‌کنیم تا کاربر بتواند دوباره درخواست بدهد
         user.resetPasswordToken = undefined;
         user.resetPasswordExpire = undefined;
-        await user.save({ validateBeforeSave: false });
+        await user.save({validateBeforeSave: false});
 
         res.status(500);
         throw new Error('ارسال ایمیل با خطا مواجه شد، لطفا دوباره تلاش کنید');
@@ -172,7 +196,7 @@ const forgotPassword = asyncHandler(async (req, res) => {
 // @route   PUT /api/auth/reset-password/:token
 // @access  Public
 const resetPassword = asyncHandler(async (req, res) => {
-    const { password } = req.body;
+    const {password} = req.body;
 
     if (!password || password.length < 6) {
         res.status(400);
@@ -187,7 +211,7 @@ const resetPassword = asyncHandler(async (req, res) => {
 
     const user = await User.findOne({
         resetPasswordToken: hashedToken,
-        resetPasswordExpire: { $gt: Date.now() },
+        resetPasswordExpire: {$gt: Date.now()},
     }).select('+resetPasswordToken +resetPasswordExpire');
 
     if (!user) {
@@ -226,7 +250,7 @@ const verifyEmail = asyncHandler(async (req, res) => {
 
     const user = await User.findOne({
         verificationToken: hashedToken,
-        verificationTokenExpire: { $gt: Date.now() },
+        verificationTokenExpire: {$gt: Date.now()},
     }).select('+verificationToken +verificationTokenExpire');
 
     if (!user) {
@@ -244,7 +268,7 @@ const verifyEmail = asyncHandler(async (req, res) => {
     user.isVerified = true;
     user.verificationToken = undefined;
     user.verificationTokenExpire = undefined;
-    await user.save({ validateBeforeSave: false });
+    await user.save({validateBeforeSave: false});
 
     res.json({
         success: true,
@@ -256,42 +280,34 @@ const verifyEmail = asyncHandler(async (req, res) => {
 // @route   POST /api/auth/resend-verification
 // @access  Public
 const resendVerification = asyncHandler(async (req, res) => {
-    const { email } = req.body;
+    const {email} = req.body;
 
-    const user = await User.findOne({ email });
+    const user = await User.findOne({email});
 
     // پیام یکسان برمی‌گردانیم چه ایمیل وجود داشته باشد چه نه (مثل forgot-password)
     const genericMessage = 'اگر این ایمیل در سیستم ثبت‌شده و تایید نشده باشد، ایمیل تایید مجددا ارسال می‌شود';
 
     if (!user || user.isVerified) {
-        return res.json({ success: true, message: genericMessage });
+        return res.json({success: true, message: genericMessage});
     }
 
     const verificationToken = user.getVerificationToken();
-    await user.save({ validateBeforeSave: false });
+    await user.save({validateBeforeSave: false});
 
-    const verifyUrl = `${process.env.CLIENT_URL}/verify-email/${verificationToken}`;
-
-    const html = `
-    <div dir="rtl" style="font-family: Tahoma, sans-serif;">
-      <h2>تایید ایمیل</h2>
-      <p>سلام ${user.name}، برای فعال‌سازی حساب کاربری خود روی لینک زیر کلیک کنید. این لینک تا ۲۴ ساعت دیگر معتبر است.</p>
-      <a href="${verifyUrl}">${verifyUrl}</a>
-    </div>
-  `;
+    const verifyUrl = `${process.env.CLIENT_URL}/auth/verify-email/${verificationToken}`;
 
     try {
         await sendEmail({
             to: user.email,
             subject: 'تایید ایمیل - نکسورا',
-            html,
+            text: resendVerificationEmailText({name: user.name, verifyUrl}),
         });
 
-        res.json({ success: true, message: genericMessage });
+        res.json({success: true, message: genericMessage});
     } catch (error) {
         user.verificationToken = undefined;
         user.verificationTokenExpire = undefined;
-        await user.save({ validateBeforeSave: false });
+        await user.save({validateBeforeSave: false});
 
         res.status(500);
         throw new Error('ارسال ایمیل با خطا مواجه شد، لطفا دوباره تلاش کنید');
@@ -308,4 +324,3 @@ module.exports = {
     verifyEmail,
     resendVerification,
 };
-

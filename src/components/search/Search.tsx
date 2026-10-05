@@ -21,7 +21,7 @@ function Search({openSearch, closeSearch, isSearchOpen, inputRef}: SearchProps):
                     closeSearch();
                     inputRef.current?.blur();
                 }}
-                className={`fixed inset-0 bg-black/30 z-10 transition-opacity duration-300`}>dd</div>}
+                className={`fixed inset-0 bg-black/30 z-10 transition-opacity duration-300`}></div>}
             <div
                 className={`relative z-30 bg-light-gray max-l:bg-white flex-1 min-w-0 h-11 rounded-full px-4 py-1 max-lg:hidden`}>
                 <input autoComplete="off" ref={inputRef} onFocus={() => {

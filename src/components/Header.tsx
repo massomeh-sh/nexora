@@ -5,13 +5,22 @@ import Search from "./search/Search.tsx";
 import {Link} from "react-router";
 import TopBanner from "./TopBanner.tsx";
 import MobileSearchOverlay from "./search/MobileSearchOverlay.tsx";
+import {useAppSelector} from "../hooks/useAppSelector.ts";
+import {useAppDispatch} from "../hooks/useAppDispatch.ts";
+import {showCartSidebar, showWishlistSidebar} from "../store/ui/uiSlice.ts";
 
 function Header(): JSX.Element {
     const [isSearchOpen, setIsSearchOpen] = useState(false);
     const [isLoginDropdownOpen, setIsLoginDropdownOpen] = useState(false);
+    const isAuthenticated = useAppSelector(state => state.user.isAuthenticated);
+    const dispatch = useAppDispatch();
+    const wishlistItems = useAppSelector(state => state.wishlist.items);
+    const cart = useAppSelector(state => state.cart);
 
     const mobileSearchInputRef = useRef<HTMLInputElement | null>(null);
     const desktopSearchInputRef = useRef<HTMLInputElement | null>(null);
+
+    const cartItems = isAuthenticated ? cart?.cart?.items : cart.localItems;
 
 
     const openSearch = () => {
@@ -113,15 +122,6 @@ function Header(): JSX.Element {
                                         strokeLinejoin="round"/>
                                 </svg>
                             </button>
-                            <button className="cursor-pointer">
-                                <svg className="text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
-                                     width="26"
-                                     height="26" fill="none" viewBox="0 0 24 24">
-                                    <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round"
-                                          strokeWidth="2"
-                                          d="M9 10V6a3 3 0 0 1 3-3v0a3 3 0 0 1 3 3v4m3-2 .917 11.923A1 1 0 0 1 17.92 21H6.08a1 1 0 0 1-.997-1.077L6 8h12Z"></path>
-                                </svg>
-                            </button>
                         </div>
                         <Search inputRef={desktopSearchInputRef} isSearchOpen={isSearchOpen} closeSearch={closeSearch}
                                 openSearch={openSearch}/>
@@ -129,7 +129,7 @@ function Header(): JSX.Element {
                     <div className="flex gap-6 max-lg:hidden">
                         <div onMouseEnter={() => setIsLoginDropdownOpen(true)}
                              onMouseLeave={() => setIsLoginDropdownOpen(false)} className="relative">
-                            <Link to="auth"
+                            <Link to={`${isAuthenticated ? "dashboard" : "auth"}`}
                                   aria-label="حساب کاربری"
                                   className="cursor-pointer">
                                 <svg aria-hidden={true} className="w-7 h-7 text-white"
@@ -142,7 +142,7 @@ function Header(): JSX.Element {
                                         strokeLinejoin="round"/>
                                 </svg>
                             </Link>
-                            {isLoginDropdownOpen && (
+                            {isLoginDropdownOpen && !isAuthenticated && (
                                 // You can also use border to create the triangle, or use svg to round it's top, up to you!
                                 <>
                                     <div
@@ -170,7 +170,8 @@ function Header(): JSX.Element {
                                 </>
                             )}
                         </div>
-                        <button type="button" aria-label="علاقه مندی ها" className="cursor-pointer relative">
+                        <button onClick={() => dispatch(showWishlistSidebar())} type="button" aria-label="علاقه مندی ها"
+                                className="cursor-pointer relative">
                             <svg aria-hidden={true} className="w-7 h-7  text-white"
                                  xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none"
                                  viewBox="0 0 24 24">
@@ -178,9 +179,12 @@ function Header(): JSX.Element {
                                       d="M12.01 6.001C6.5 1 1 8 5.782 13.001L12.011 20l6.23-7C23 8 17.5 1 12.01 6.002Z"/>
                             </svg>
                             <span
-                                className="bg-primary-red w-4 h-4 leading-none text-white absolute right-[-3px] bottom-[-3px] flex items-center justify-center rounded-sm">۱</span>
+                                className={`bg-primary-red w-4.5 h-4 leading-none text-white absolute right-[-3px] bottom-[-3px] flex items-center justify-center rounded-sm ${wishlistItems?.length === 0 ? "hidden" : "block"}`}>{wishlistItems?.length}</span>
                         </button>
-                        <button type="button" aria-label="سبد خرید" className="cursor-pointer relative">
+                        <button type="button" onClick={() => {
+                            dispatch(showCartSidebar())
+                        }} aria-label="سبد خرید"
+                                className="cursor-pointer relative">
                             <svg className="w-7 h-7 text-white" aria-hidden="true"
                                  xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none"
                                  viewBox="0 0 24 24">
@@ -188,7 +192,7 @@ function Header(): JSX.Element {
                                       d="M9 10V6a3 3 0 0 1 3-3v0a3 3 0 0 1 3 3v4m3-2 .917 11.923A1 1 0 0 1 17.92 21H6.08a1 1 0 0 1-.997-1.077L6 8h12Z"/>
                             </svg>
                             <span aria-hidden={true}
-                                  className="bg-primary-red w-4 h-4 text-white absolute right-[-3px] bottom-[-3px] flex items-center justify-center rounded-sm leading-none">۱</span>
+                                  className={`bg-primary-red w-4.5 h-4 text-white absolute right-[-3px] bottom-[-3px] flex items-center justify-center rounded-sm leading-none ${cartItems?.length === 0 ? "hidden" : "block"}`}>{cartItems?.length}</span>
                         </button>
                     </div>
                 </header>

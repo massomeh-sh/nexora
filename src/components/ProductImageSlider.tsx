@@ -1,5 +1,5 @@
 import {type JSX, useCallback, useEffect, useRef, useState} from 'react';
-import {productSlider} from "../../constants/productSlider.ts";
+import {productSlider} from "../constants/productSlider.ts";
 import * as React from "react";
 
 const IMAGES = [productSlider[productSlider.length - 1], ...productSlider, productSlider[0]];
