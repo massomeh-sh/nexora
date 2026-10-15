@@ -2,6 +2,7 @@ import Modal from "../../UI/modal/Modal.tsx";
 import {useHashOverlay} from "../../hooks/useHashOverlay.ts";
 import StandPoint from "./StandPoint.tsx";
 import {useMediaQuery} from "../../hooks/useMediaQuery.ts";
+import {useLockBodyScroll} from "../../hooks/useLockBodyScroll.ts";
 
 
 function ProductStandPoint() {
@@ -9,6 +10,7 @@ function ProductStandPoint() {
 
 
     const isDesktop = useMediaQuery("(min-width: 1024px)");
+    useLockBodyScroll(isOpen);
 
 
     if (isDesktop) {

@@ -53,14 +53,14 @@ function StandPoint({close}: StandPointProps) {
         <>
             {
                 btnSubmitted ? (
-                    <div className="flex flex-col h-96 p-4">
-                        <div className="flex flex-col gap-3 items-center mt-auto">
+                    <div className="flex flex-col h-96 max-lg:h-full p-4">
+                        <div className="flex flex-col gap-3 items-center justify-center mt-auto">
                             <ClapSvg className="w-24 h-24"/>
                             <h3 className="text-lg">{`${userData.name}`} عزیز از مشارکتتان ممنونیم!</h3>
                             <p>ممکن است کمی زمان ببرد تا دیدگاه شما پس از بررسی نمایش داده شود.</p>
                         </div>
                         <button onClick={close}
-                                className="bg-primary-blue text-white rounded-lg w-full p-3 text-lg mt-auto cursor-pointer">بازگشت
+                                className="bg-primary-blue text-white rounded-lg w-full p-3 text-lg mt-auto cursor-pointer justify-self-end">بازگشت
                         </button>
                     </div>
                 ) : <div className="relative flex flex-col gap-2 items-start h-full">
@@ -139,29 +139,28 @@ function StandPoint({close}: StandPointProps) {
             {showOptions && (
                 <div onClick={() => setShowOptions(false)} className="fixed inset-0 bg-black/50"/>)}
 
-            {showOptions &&
-                <div
-                    className="flex flex-col w-full absolute top-1/2 -translate-y-1/2 inset-x-0 border border-light-gray rounded-lg bg-white">
+            <div
+                className={`flex flex-col w-full ${showOptions ? "lg:opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"} absolute lg:top-1/2 lg:-translate-y-1/2 lg:inset-x-0 max-lg:bottom-0 max-lg:inset-x-0 border border-light-gray rounded-lg bg-white max-lg:transition-all max-lg:duration-300 ${showOptions ? "max-lg:opacity-100 max-lg:translate-y-0" : "max-lg:opacity-0 max-lg:translate-y-full"}`}>
 
-                    <div className="flex items-center p-5 justify-between border-b border-light-gray">
-                        <h3 className="text-lg font-semibold">نحوه ی نمایش دیدگاه ها</h3>
-                        <button onClick={() => setShowOptions(false)}
-                                className="cursor-pointer">
-                            <svg className="w-5 h-5" aria-hidden="true"
-                                 xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none"
-                                 viewBox="0 0 24 24">
-                                <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round"
-                                      strokeWidth="2"
-                                      d="M6 18 17.94 6M18 18 6.06 6"/>
-                            </svg>
-                        </button>
-                    </div>
+                <div className="flex items-center p-5 justify-between border-b border-light-gray">
+                    <h3 className="text-lg font-semibold">نحوه ی نمایش دیدگاه ها</h3>
+                    <button onClick={() => setShowOptions(false)}
+                            className="cursor-pointer">
+                        <svg className="w-5 h-5" aria-hidden="true"
+                             xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none"
+                             viewBox="0 0 24 24">
+                            <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round"
+                                  strokeWidth="2"
+                                  d="M6 18 17.94 6M18 18 6.06 6"/>
+                        </svg>
+                    </button>
+                </div>
 
-                    <DisplayStandPointOption selectedOption={selectedOption}
-                                             setSelectedOption={setSelectedOption}/>
+                <DisplayStandPointOption selectedOption={selectedOption}
+                                         setSelectedOption={setSelectedOption}/>
 
 
-                </div>}
+            </div>
         </>
     );
 }
