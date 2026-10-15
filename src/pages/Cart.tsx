@@ -61,7 +61,7 @@ function CartPage(): JSX.Element {
                         }</div>
                     <div ref={menuRef} dir="ltr" className="relative flex items-center gap-3">
                         {cartItems.length > 0 &&
-                            <button onClick={() => setShowDropDown((pre) => !pre)} className="cursor-pointer">
+                            <button onClick={() => setShowDropDown(true)} className="cursor-pointer">
                                 <svg xmlns="http://www.w3.org/2000/svg"
                                      fill="#000000" width="20" height="20" viewBox="0 0 32 32"
                                      enableBackground="new 0 0 32 32" id="Glyph" version="1.1">
@@ -107,7 +107,7 @@ function CartPage(): JSX.Element {
                                           title="سبد خرید خالی است"/>)}
                 {cartItems.length > 0 && (
                     <ul className='flex flex-col gap-5 mt-15'>
-                        {cartItems.map((item) => <li key={item.product._id}><CartPageCard cartItem={item}/></li>)}
+                        {cartItems.map((item) => <li key={item.product._id} className="not-last:border-b not-last:pb-5 not-last:border-light-gray not-last:border-dashed"><CartPageCard cartItem={item}/></li>)}
                     </ul>
                 )}
             </div>

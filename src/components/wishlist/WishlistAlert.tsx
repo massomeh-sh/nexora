@@ -1,6 +1,5 @@
 import {useAppSelector} from "../../hooks/useAppSelector.ts";
 import {useCallback, useEffect, useMemo, useRef} from "react";
-import {useAppDispatch} from "../../hooks/useAppDispatch.ts";
 import {hideProductAlert} from "../../store/ui/uiSlice.ts";
 import {addLocalToWishlist, removeLocalFromWishlist, setWishlist} from "../../store/wishlist/wishlistSlice.ts";
 import {useMutation} from "@tanstack/react-query";
@@ -11,11 +10,12 @@ import {addLocalItem, makeSelectIsInCart} from "../../store/cart/cartSlice.ts";
 import {useNavigate} from "react-router";
 import {ApiError} from "../../api/apiClient.ts";
 import {toast} from "sonner";
+import {useDispatch} from "react-redux";
 
 function WishlistAlert() {
     const wishlistAlert = useAppSelector(state => state.ui.productAlert);
     const selectedProduct = useAppSelector(state => state.ui.selectedProduct)
-    const dispatch = useAppDispatch();
+    const dispatch = useDispatch();
     const isAuthenticated = useAppSelector(state => state.user.isAuthenticated);
     const navigate = useNavigate();
     const timerRef = useRef<ReturnType<typeof setTimeout>>(null);

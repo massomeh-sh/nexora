@@ -19,7 +19,7 @@ function MobileNavigation(): JSX.Element {
 
 
     return (
-        <nav className="fixed bottom-0 bg-white w-full lg:hidden border-t-2 border-light-gray z-50">
+        <nav className="fixed z-50 bottom-0 bg-white w-full lg:hidden border-t-2 border-light-gray z-50">
             <ul className="flex justify-between items-center w-full text-dark-gray px-1 text-sm">
                 <li className="mobileNav-item" onClick={handleAnimate} onMouseEnter={handleAnimate}>
                     <NavLink to="/"

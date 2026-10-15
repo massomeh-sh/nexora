@@ -16,7 +16,7 @@ function Modal({open, close, children, className}: ModalProps): JSX.Element {
     useEffect(() => {
         const modal = modalRef.current;
         if (!open || !modal) return;
-        if(open){
+        if (open) {
             modal.showModal()
         }
         return () => {
@@ -27,12 +27,20 @@ function Modal({open, close, children, className}: ModalProps): JSX.Element {
     const closeModal = (e: React.MouseEvent<HTMLDialogElement>) => {
         if (!modalRef.current) return;
         if (e.target === modalRef.current) {
+            console.log("close modal");
             modalRef.current?.close();
+            close?.();
         } else return;
     }
 
-    return createPortal(<dialog ref={modalRef} onClose={close} onClick={closeModal}
-                                className={`overflow-y-auto scrollbar-none border border-gray-200 bg-white outline-none backdrop:h-screen backdrop:bg-black/50 ${className ?? ""}`}>
+    const handleCancel = (e: React.MouseEvent<HTMLDialogElement>) => {
+        console.log("cancel");
+        e.preventDefault();
+        close?.();
+    }
+
+    return createPortal(<dialog ref={modalRef} onClick={closeModal} onCancel={handleCancel}
+                                className={`overflow-y-auto scrollbar-none border border-gray-200 bg-white outline-none backdrop:h-screen backdrop:bg-black/40 ${className ?? ""}`}>
         {children}
     </dialog>, document.getElementById("modal")!)
 }

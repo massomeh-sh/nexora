@@ -1,5 +1,5 @@
 import type {JSX} from 'react';
-import Modal from "./Modal.tsx";
+import Modal from "./modal/Modal.tsx";
 
 interface ConfirmationModalProps {
     // Props here

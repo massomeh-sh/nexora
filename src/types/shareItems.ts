@@ -1,6 +1,11 @@
+import type {ComponentType, SVGProps} from "react";
+
+export type ShareBtn = "telegram" | "facebook" | "twitter" | "whatsapp" | "gmail"
+
 export interface ShareItem {
-    id: string;
-    name: string;
+    id: number;
+    name: ShareBtn;
     url: string;
-    icon: string;
+    icon: ComponentType<SVGProps<SVGSVGElement>>;
 }
+

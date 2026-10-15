@@ -4,6 +4,20 @@ const Category = require('../models/Category');
 const mongoose = require('mongoose');
 const Cart = require('../models/Cart');
 
+// آرایه‌ی لایک و دیسلایک رو به تعداد و وضعیت کاربر تبدیل می‌کنه
+// (آیدی کاربرها هیچ‌وقت به کلاینت نمیره)
+const formatReview = (review, userId) => {
+    const {likes = [], dislikes = [], ...rest} = review;
+    const has = (arr) => userId && arr.some((u) => u.toString() === userId.toString());
+
+    return {
+        ...rest,
+        likesCount: likes.length,
+        dislikesCount: dislikes.length,
+        userReaction: has(likes) ? 'like' : has(dislikes) ? 'dislike' : null,
+    };
+};
+
 // @desc    گرفتن لیست محصولات (با فیلتر، جستجو و صفحه‌بندی)
 // @route   GET /api/products
 // @access  Public
@@ -160,20 +174,7 @@ const getProductById = asyncHandler(async (req, res) => {
         ? Math.round(((product.price - product.discountPrice) / product.price) * 100)
         : 0;
 
-    product.inStock = product.stock > 0;
-
     // تعداد این محصول داخل سبد کاربر (برای مهمان یا محصول خارج از سبد: 0)
-    product.quantity = 0;
-
-    if (req.user) {
-        const cart = await Cart.findOne(
-            {user: req.user._id, 'items.product': product._id},
-            {'items.$': 1}
-        ).lean();
-
-        product.quantity = cart?.items?.[0]?.quantity ?? 0;
-    }
-
     product.inStock = product.stock > 0;
     product.quantity = 0;
 
@@ -185,6 +186,10 @@ const getProductById = asyncHandler(async (req, res) => {
 
         product.quantity = cart?.items?.[0]?.quantity ?? 0;
     }
+
+    product.reviews = (product.reviews || []).map((r) =>
+        formatReview(r, req.user?._id)
+    );
 
     res.json({success: true, data: product});
 });
@@ -227,9 +232,60 @@ const createProductReview = asyncHandler(async (req, res) => {
     res.status(201).json({success: true, message: 'نظر شما ثبت شد'});
 });
 
+
+// @desc    لایک / دیسلایک یک نظر (تکرار همان دکمه، واکنش را برمی‌دارد)
+// @route   POST /api/products/:id/reviews/:reviewId/react
+// @access  Private
+const reactToReview = asyncHandler(async (req, res) => {
+    const {id, reviewId} = req.params;
+    const {type} = req.body;
+
+    if (!['like', 'dislike'].includes(type)) {
+        res.status(400);
+        throw new Error('نوع واکنش نامعتبر است');
+    }
+
+    if (!mongoose.Types.ObjectId.isValid(id) || !mongoose.Types.ObjectId.isValid(reviewId)) {
+        res.status(400);
+        throw new Error('شناسه نامعتبر است');
+    }
+
+    const product = await Product.findById(id);
+    if (!product) {
+        res.status(404);
+        throw new Error('محصول یافت نشد');
+    }
+
+    const review = product.reviews.id(reviewId);
+    if (!review) {
+        res.status(404);
+        throw new Error('نظر یافت نشد');
+    }
+
+    const userId = req.user._id;
+    const isSame = (u) => u.equals(userId);
+    const sameType = type === 'like' ? review.likes : review.dislikes;
+    const alreadyDid = sameType.some(isSame);
+
+    // اول واکنش قبلی کاربر (هر نوعی) برداشته میشه
+    review.likes = review.likes.filter((u) => !isSame(u));
+    review.dislikes = review.dislikes.filter((u) => !isSame(u));
+
+    // اگه همون دکمه رو دوباره زده بود، فقط برداشته میشه؛ وگرنه ثبت میشه
+    if (!alreadyDid) {
+        (type === 'like' ? review.likes : review.dislikes).push(userId);
+    }
+
+    await product.save();
+
+    const {likesCount, dislikesCount, userReaction} = formatReview(review.toObject(), userId);
+    res.json({success: true, data: {likesCount, dislikesCount, userReaction}});
+});
+
 module.exports = {
     getProducts,
     getDealProducts,
     getProductById,
     createProductReview,
+    reactToReview
 };

@@ -7,7 +7,7 @@ export async function productLoader({request}: LoaderFunctionArgs) {
     await queryClient.query({
         queryKey: [{id}],
         queryFn: () => getProduct(id),
-        staleTime: "static"
+        staleTime: "static",
     });
 
     return null;

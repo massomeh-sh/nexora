@@ -9,8 +9,7 @@ interface ProductAlertState {
 }
 
 export interface uiState {
-    isQuickViewModalOpen: boolean;
-    isProductSharingModalOpen: boolean;
+    currentModal: "quickView" | "shareLink" | null;
     confirmationModal: "cart" | "wishlist" | null;
     activeSidebar: "cart" | "wishlist" | "menu" | null;
     selectedProduct: Product | null;

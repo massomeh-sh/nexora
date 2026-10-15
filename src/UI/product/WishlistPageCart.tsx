@@ -8,7 +8,7 @@ import {makeSelectIsInWishlist} from "../../store/wishlist/wishlistSlice.ts";
 import {useAppSelector} from "../../hooks/useAppSelector.ts";
 import useToggleWishlist from "../../hooks/useToggleWishlist.tsx";
 import {useDispatch} from "react-redux";
-import {setSelectedProduct, showCartSidebar, showQuickViewModal} from "../../store/ui/uiSlice.ts";
+import {setSelectedProduct, showCartSidebar, showModal} from "../../store/ui/uiSlice.ts";
 import {
     addLocalItem,
     makeSelectIsInCart,
@@ -35,7 +35,7 @@ function WishlistPageCart({product}: WishlistPageCartProps): JSX.Element {
 
     const handleQuickView = async () => {
         await dispatch(setSelectedProduct(product));
-        dispatch(showQuickViewModal());
+        dispatch(showModal("quickView"));
     }
 
     const handleAddToCart = () => {

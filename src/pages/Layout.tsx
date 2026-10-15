@@ -6,7 +6,6 @@ import WishlistAlert from "../components/wishlist/WishlistAlert.tsx";
 import WishlistSidebar from "../components/wishlist/WishlistSidebar.tsx";
 import {useQuery} from "@tanstack/react-query";
 import {getMe} from "../api/auth.ts";
-import {useAppDispatch} from "../hooks/useAppDispatch.ts";
 import {setUser} from "../store/user/userSlice.ts";
 import {getWishlist} from "../api/wishlist.ts";
 import {setWishlist} from "../store/wishlist/wishlistSlice.ts";
@@ -20,11 +19,13 @@ import CartConfirmationModal from "../components/cart/CartConfirmationModal.tsx"
 import {toast} from "sonner";
 import {ApiError} from "../api/apiClient.ts";
 import TopLoadingBar from "../components/TopLoadingBar.tsx";
-import ProductSharing from "../components/product/ProductSharing.tsx";
+import ProductSharingModal from "../components/product/ProductSharingModal.tsx";
+import {useDispatch} from "react-redux";
 
 function LayoutPage(): JSX.Element {
-    const dispatch = useAppDispatch();
+    const dispatch = useDispatch();
     const selectedProduct = useAppSelector(state => state.ui.selectedProduct);
+    const currentModal = useAppSelector(state => state.ui.currentModal);
 
     const {data: user} = useQuery({
         queryKey: ["me"],
@@ -90,7 +91,7 @@ function LayoutPage(): JSX.Element {
             <WishlistSidebar/>
             <CartSidebar/>
             <QuickViewModal key={selectedProduct?._id}/>
-            <ProductSharing/>
+            <ProductSharingModal key={currentModal}/>
             <WishlistConfirmationModal/>
             <CartConfirmationModal/>
             <main className="px-32 py-8 max-lg:px-6">

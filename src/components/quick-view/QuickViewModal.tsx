@@ -1,5 +1,4 @@
-import Modal from "../../UI/Modal.tsx";
-import {useAppDispatch} from "../../hooks/useAppDispatch.ts";
+import Modal from "../../UI/modal/Modal.tsx";
 import {hideModal, showCartSidebar} from "../../store/ui/uiSlice.ts";
 import {useAppSelector} from "../../hooks/useAppSelector.ts";
 import {priceFormater} from "../../util/priceFormater.ts";
@@ -10,12 +9,13 @@ import {
 import {useMemo, useState} from "react";
 import useAddToCart from "../../hooks/useAddToCart.ts";
 import DiscountPrice from "../../UI/DiscountPrice.tsx";
-import UpdateQuantity from "../../UI/product/UpdateQuantity.tsx";
+import UpdateQuantity from "../../UI/UpdateQuantity.tsx";
+import {useDispatch} from "react-redux";
 
 function QuickViewModal() {
-    const isModalOpen = useAppSelector(state => state.ui.isQuickViewModalOpen);
+    const currentModal = useAppSelector(state => state.ui.currentModal);
     const selectedProduct = useAppSelector(state => state.ui.selectedProduct);
-    const dispatch = useAppDispatch();
+    const dispatch = useDispatch();
     const isAuthenticated = useAppSelector(state => state.user.isAuthenticated);
     const selectIsInCart = useMemo(() => makeSelectIsInCart(), []);
     const currentCartItem = useAppSelector(state => {
@@ -54,7 +54,8 @@ function QuickViewModal() {
     if (!selectedProduct) return null;
 
     return (
-        <Modal open={isModalOpen} close={() => dispatch(hideModal())} className="w-[90%] max-w-6xl max-h-[90%] m-auto">
+        <Modal open={currentModal === "quickView"} close={() => dispatch(hideModal())}
+               className="w-[90%] max-w-6xl max-h-[90%] m-auto">
             <div className="flex max-md:flex-col gap-5 p-6 relative">
                 <button aria-label="بستن نمایش سریع محصولات" onClick={() => dispatch(hideModal())}
                         className="absolute bg-primary-blue text-white top-2 left-2 p-1.5 max-lg:p-0.5 cursor-pointer z-10">

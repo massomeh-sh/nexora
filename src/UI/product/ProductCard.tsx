@@ -2,11 +2,11 @@ import {type JSX, useMemo} from 'react';
 import type {Product} from "../../types/product.ts";
 import {Link} from "react-router";
 import {priceFormater} from "../../util/priceFormater.ts";
-import {useAppDispatch} from "../../hooks/useAppDispatch.ts";
-import {setSelectedProduct, showQuickViewModal} from "../../store/ui/uiSlice.ts";
+import {setSelectedProduct, showModal} from "../../store/ui/uiSlice.ts";
 import {makeSelectIsInWishlist} from "../../store/wishlist/wishlistSlice.ts";
 import {useAppSelector} from "../../hooks/useAppSelector.ts";
 import useToggleWishlist from "../../hooks/useToggleWishlist.tsx";
+import {useDispatch} from "react-redux";
 
 interface ProductCardProps {
     // Props here
@@ -14,7 +14,7 @@ interface ProductCardProps {
 }
 
 function ProductCard({product}: ProductCardProps): JSX.Element {
-    const dispatch = useAppDispatch();
+    const dispatch = useDispatch();
 
 
     const selectIsInWishList = useMemo(() => makeSelectIsInWishlist(), []);
@@ -27,7 +27,7 @@ function ProductCard({product}: ProductCardProps): JSX.Element {
     const handleQuickView = async () => {
         await new Promise((resolve) => setTimeout(resolve, 300));
         await dispatch(setSelectedProduct(product));
-        dispatch(showQuickViewModal());
+        dispatch(showModal("quickView"));
     }
     const handleCompare = () => {
     }

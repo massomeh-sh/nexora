@@ -1,31 +1,38 @@
-import {type JSX, type RefObject, useState} from 'react';
+import {type JSX, type RefObject, useEffect, useState} from 'react';
 import TopSearches from "./TopSearches.tsx";
 import searchBanner from "../../assets/بنر تبلیغاتی2.jpg";
 import {Link} from "react-router";
 
 
 interface SearchProps {
-    openSearch: () => void;
-    closeSearch: () => void;
+    open: () => void;
+    close: () => void;
     isSearchOpen: boolean;
     inputRef: RefObject<HTMLInputElement | null>;
 }
 
-function Search({openSearch, closeSearch, isSearchOpen, inputRef}: SearchProps): JSX.Element {
+function Search({open, close, isSearchOpen, inputRef}: SearchProps): JSX.Element {
     const [searchText, setSearchText] = useState('');
+
+    useEffect(() => {
+        if (!isSearchOpen) {
+            setSearchText("");
+        }
+    }, [isSearchOpen])
 
     return (
         <form className="relative w-full flex items-center gap-5 max-lg:hidden">
             {isSearchOpen && <div
                 onClick={() => {
-                    closeSearch();
+                    close();
+                    setSearchText("")
                     inputRef.current?.blur();
                 }}
                 className={`fixed inset-0 bg-black/30 z-10 transition-opacity duration-300`}></div>}
             <div
                 className={`relative z-30 bg-light-gray max-l:bg-white flex-1 min-w-0 h-11 rounded-full px-4 py-1 max-lg:hidden`}>
                 <input autoComplete="off" ref={inputRef} onFocus={() => {
-                    openSearch();
+                    open();
                     inputRef.current?.focus();
                 }} type="text" placeholder="" value={searchText} onChange={(e) => setSearchText(e.target.value)}
                        className="w-full h-full peer outline-none pr-8"/>

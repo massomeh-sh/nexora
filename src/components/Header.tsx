@@ -1,4 +1,4 @@
-import {type JSX, useCallback, useEffect, useRef, useState} from 'react';
+import {type JSX, useState} from 'react';
 import nexoraImage from "../assets/img/nexoraLogoImg.png";
 import Navbar from "./Navbar.tsx";
 import Search from "./search/Search.tsx";
@@ -6,88 +6,19 @@ import {Link} from "react-router";
 import TopBanner from "./TopBanner.tsx";
 import MobileSearchOverlay from "./search/MobileSearchOverlay.tsx";
 import {useAppSelector} from "../hooks/useAppSelector.ts";
-import {useAppDispatch} from "../hooks/useAppDispatch.ts";
 import {showCartSidebar, showWishlistSidebar} from "../store/ui/uiSlice.ts";
+import {useDispatch} from "react-redux";
+import {useSearchOverlay} from "../hooks/useSearchOverlay.ts";
 
 function Header(): JSX.Element {
-    const [isSearchOpen, setIsSearchOpen] = useState(false);
     const [isLoginDropdownOpen, setIsLoginDropdownOpen] = useState(false);
     const isAuthenticated = useAppSelector(state => state.user.isAuthenticated);
-    const dispatch = useAppDispatch();
+    const dispatch = useDispatch();
     const wishlistItems = useAppSelector(state => state.wishlist.items);
     const cart = useAppSelector(state => state.cart);
 
-    const mobileSearchInputRef = useRef<HTMLInputElement | null>(null);
-    const desktopSearchInputRef = useRef<HTMLInputElement | null>(null);
-
     const cartItems = isAuthenticated ? cart?.cart?.items : cart.localItems;
-
-
-    const openSearch = () => {
-        setIsSearchOpen(true);
-        window.location.hash = "#search";
-    }
-
-    const closeSearch = useCallback(() => {
-        setIsSearchOpen(false);
-        if (window.location.hash === "#search") {
-            window.history.replaceState(null, "", window.location.pathname + window.location.search);
-        }
-    }, []);
-
-
-    useEffect(() => {
-        const handleHashChange = () => {
-            setIsSearchOpen(window.location.hash === "#search");
-        }
-        handleHashChange();
-        // We call it manually because it won't be called when component mount at first!
-
-        window.addEventListener("hashchange", handleHashChange);
-
-        return () => window.removeEventListener("hashchange", handleHashChange);
-    }, []);
-
-
-    useEffect(() => {
-        if (!isSearchOpen) return;
-        const closeSearchInput = (e: KeyboardEvent) => {
-            if (e.key === "Escape") {
-                closeSearch();
-            }
-            desktopSearchInputRef.current?.blur();
-        }
-
-        document.addEventListener("keydown", closeSearchInput);
-
-        return () => {
-            document.removeEventListener("keydown", closeSearchInput);
-        }
-    }, [isSearchOpen, closeSearch]);
-
-    useEffect(() => {
-        const handleKeyDown = (e: KeyboardEvent) => {
-            const isShortcut =
-                ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "k") ||
-                e.key === "ن";
-
-            if (!isShortcut) return;
-
-            e.preventDefault();
-            openSearch();
-            desktopSearchInputRef.current?.focus();
-
-            window.dispatchEvent(
-                new CustomEvent("close-all-menus")
-            );
-        };
-
-        window.addEventListener("keydown", handleKeyDown);
-
-        return () => {
-            window.removeEventListener("keydown", handleKeyDown);
-        };
-    }, []);
+    const {mobileSearchInputRef, desktopSearchInputRef, isSearchOpen, close, open} = useSearchOverlay();
 
     return (
         <>
@@ -109,7 +40,7 @@ function Header(): JSX.Element {
                         </Link>
                         <div className="lg:hidden flex gap-3 mr-auto">
                             <button onClick={() => {
-                                openSearch();
+                                open();
                                 mobileSearchInputRef.current?.focus();
                             }} className="cursor-pointer">
                                 <svg xmlns="http://www.w3.org/2000/svg"
@@ -123,8 +54,8 @@ function Header(): JSX.Element {
                                 </svg>
                             </button>
                         </div>
-                        <Search inputRef={desktopSearchInputRef} isSearchOpen={isSearchOpen} closeSearch={closeSearch}
-                                openSearch={openSearch}/>
+                        <Search inputRef={desktopSearchInputRef} isSearchOpen={isSearchOpen} close={close}
+                                open={open}/>
                     </div>
                     <div className="flex gap-6 max-lg:hidden">
                         <div onMouseEnter={() => setIsLoginDropdownOpen(true)}
@@ -200,7 +131,7 @@ function Header(): JSX.Element {
             </div>
             <div
                 className={`lg:hidden fixed inset-0 bg-white ${isSearchOpen ? "translate-y-0 opacity-100" : "-translate-y-full opacity-0"} transition-all duration-300 z-[999]`}>
-                <MobileSearchOverlay inputRef={mobileSearchInputRef} closeSearch={closeSearch}/>
+                <MobileSearchOverlay inputRef={mobileSearchInputRef} closeSearch={close}/>
             </div>
         </>
     );

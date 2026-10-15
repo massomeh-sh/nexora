@@ -8,10 +8,12 @@ interface UpdateQuantityWithDeleteBtnProps {
     onQuantityChange: (quantity: number) => void;
     onUpdateCartQuantity: (finalQuantity: number) => void;
     onRemoveItem: () => void;
+    className?: string;
 }
 
 function UpdateQuantityWithDeleteBtn({
                                          onIncreaseQuantity,
+                                         className,
                                          onDecreaseQuantity,
                                          quantity,
                                          onQuantityChange,
@@ -21,9 +23,9 @@ function UpdateQuantityWithDeleteBtn({
 
     return (
         <div
-            className="mr-auto bg-lightest-gray px-4 py-2 rounded-sm flex justify-center items-center text-sm relative z-10 h-6 lg:h-8 gap-3">
+            className={`mr-auto bg-lightest-gray px-4 py-2 rounded-sm flex justify-center items-center text-sm relative z-10 h-6 lg:h-8 gap-3 ${className ?? ""}`}>
             <button onClick={onIncreaseQuantity}
-                    className="cursor-pointer flex items-center justify-center">+
+                    className="cursor-pointer flex items-center justify-center active:scale-105 hover:scale-125">+
             </button>
             <input style={{width: "3ch"}} type="text" inputMode="numeric" value={quantity} onChange={(e) => {
                 const value = e.target.value.replace(/\D/g, "");
@@ -36,7 +38,7 @@ function UpdateQuantityWithDeleteBtn({
             } className="text-center w-[3ch]"/>
             <div>{quantity === 1 ?
                 <button onClick={onRemoveItem}
-                        className="cursor-pointer flex items-center justify-center">
+                        className="cursor-pointer flex items-center justify-center active:scale-125 hover:scale-125">
                     <svg stroke="currentColor" fill="currentColor" strokeWidth="0" viewBox="0 0 24 24"
                          height="0.9em" width="0.9em" xmlns="http://www.w3.org/2000/svg">
                         <path
@@ -44,7 +46,7 @@ function UpdateQuantityWithDeleteBtn({
                     </svg>
                 </button> :
                 <button onClick={onDecreaseQuantity}
-                        className="cursor-pointer flex items-center justify-center">-</button>}</div>
+                        className="active:scale-125 hover:scale-125 cursor-pointer flex items-center justify-center">-</button>}</div>
         </div>
     );
 }

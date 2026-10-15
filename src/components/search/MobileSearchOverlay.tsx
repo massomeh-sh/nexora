@@ -12,7 +12,7 @@ interface MobileSearchOverlayProps {
 function MobileSearchOverlay({closeSearch, inputRef}: MobileSearchOverlayProps): JSX.Element {
     const [openDropdown, setOpenDropdown] = useState(false);
     const [selectedCategory, setSelectedCategory] = useState("همه دسته بندی ها");
-    const searchCategoryRef = useRef<HTMLDivElement>(null);
+    const searchCategoryRef = useRef<HTMLFormElement>(null);
 
     useEffect(() => {
         function handleClickOutside(e: MouseEvent) {
@@ -30,7 +30,7 @@ function MobileSearchOverlay({closeSearch, inputRef}: MobileSearchOverlayProps):
     return (
         <div className="px-10 py-5 flex flex-col gap-5">
             <div className="flex relative">
-                <div ref={searchCategoryRef} className="relative w-1/3 bg-light-gray rounded-r-sm">
+                <form ref={searchCategoryRef} className="relative w-1/3 bg-light-gray rounded-r-sm">
                     <button onClick={() => setOpenDropdown((pre) => !pre)}
                             className="text-sm text-dark-gray flex gap-2 items-center cursor-pointer px-3 py-4 w-full">
                         <span className="text-xs">{selectedCategory}</span>
@@ -65,11 +65,12 @@ function MobileSearchOverlay({closeSearch, inputRef}: MobileSearchOverlayProps):
                                     className="cursor-pointer text-xs">{category.name}</button>
                             </li>)}
                         </ul>}
-                </div>
+                </form>
                 <input ref={inputRef} autoComplete="off" type="text" placeholder="جستجو در همه کالاها..."
                        className="bg-lightest-gray flex-1 rounded-l-sm outline-none pr-3"/>
                 <button onClick={() => {
                     closeSearch();
+
                 }} className="cursor-pointer text-dark-gray">
                     <svg stroke="currentColor" fill="currentColor" strokeWidth="0" viewBox="0 0 24 24" height="18"
                          className="absolute top-1/2 -translate-y-1/2 left-3"

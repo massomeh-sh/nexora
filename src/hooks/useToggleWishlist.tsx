@@ -1,15 +1,15 @@
 import {useMutation} from "@tanstack/react-query";
 import {toggleWishlist} from "../api/wishlist.ts";
-import {useAppDispatch} from "./useAppDispatch.ts";
 import {setWishlist, toggleLocalWishlist} from "../store/wishlist/wishlistSlice.ts";
 import {setSelectedProduct, showProductAlert} from "../store/ui/uiSlice.ts";
 import {useAppSelector} from "./useAppSelector.ts";
 import type {Product} from "../types/product.ts";
 import {toast} from "sonner";
 import {ApiError} from "../api/apiClient.ts";
+import {useDispatch} from "react-redux";
 
 function useToggleWishlist() {
-    const dispatch = useAppDispatch();
+    const dispatch = useDispatch();
     const isAuthenticated = useAppSelector(state => state.user.isAuthenticated);
 
     const {mutateAsync} = useMutation({

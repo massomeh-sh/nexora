@@ -1,18 +1,18 @@
 import type {JSX} from 'react';
 import {useAppSelector} from "../../hooks/useAppSelector.ts";
 import Sidebar from "../../UI/Sidebar.tsx";
-import {useAppDispatch} from "../../hooks/useAppDispatch.ts";
 import {hideCartSidebar} from "../../store/ui/uiSlice.ts";
 import CartSidebarCart from "../../UI/product/CartSidebarCart.tsx";
 import emptyCartSidebar from "../../assets/icons/empty-cart-sidebar.svg";
 import {useClearCart} from "../../hooks/useClearCart.ts";
 import {clearLocalCart} from "../../store/cart/cartSlice.ts";
+import {useDispatch} from "react-redux";
 
 function CartSidebar(): JSX.Element {
     const activeSidebar = useAppSelector(state => state.ui.activeSidebar);
     const cart = useAppSelector(state => state.cart);
     const isAuthenticated = useAppSelector(state => state.user.isAuthenticated);
-    const dispatch = useAppDispatch();
+    const dispatch = useDispatch();
 
     const {mutate: mutateClearCart} = useClearCart();
 

@@ -59,7 +59,7 @@ function CartPageCard({cartItem}: CartPageCardProps): JSX.Element {
             </Link>
             <div className="max-md:col-span-2">
                 <Link to={productPath}>{cartItem.product.name}</Link>
-                <p className="text-dark-gray mt-2 max-sm:text-xs">{cartItem.product.description}</p>
+                <p className="text-dark-gray mt-2 max-sm:text-xs">{cartItem.product.shortDescription}</p>
             </div>
             <div className="flex flex-col justify-self-end gap-2 max-md:justify-self-start">
                 <p className="space-x-1">

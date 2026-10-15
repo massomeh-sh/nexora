@@ -2,7 +2,7 @@ import {type JSX} from 'react';
 import type {Product} from "../../types/product.ts";
 import {Link, useNavigate} from "react-router";
 import {priceFormater} from "../../util/priceFormater.ts";
-import UpdateQuantityWithDeleteBtn from "./UpdateQuantityWithDeleteBtn.tsx";
+import UpdateQuantityWithDeleteBtn from "../UpdateQuantityWithDeleteBtn.tsx";
 import {useCartQuantity} from "../../hooks/useCartQuantity.ts";
 import {useDispatch} from "react-redux";
 import {hideCartSidebar} from "../../store/ui/uiSlice.ts";

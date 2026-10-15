@@ -20,8 +20,9 @@ import Loading from "../UI/Loading.tsx";
 export const queryClient = new QueryClient({
     mutationCache: new MutationCache({
         onSuccess: async (_data, _variables, _context, mutation) => {
+            const key = mutation.options.mutationKey;
             await queryClient.invalidateQueries({
-                queryKey: mutation.options.mutationKey,
+                queryKey: key,
             })
         }
     })
