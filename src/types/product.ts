@@ -69,6 +69,13 @@ export interface GetProductByIdResponse {
     data: Product;
 }
 
+export interface GetAllProductsResponse {
+    success: boolean;
+    data: Product[];
+    pages: number;
+    total: number;
+}
+
 export interface ReactToProductCommentProps {
     id: string;
     reviewId: string;

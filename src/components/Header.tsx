@@ -1,7 +1,7 @@
 import {type JSX, useState} from 'react';
 import nexoraImage from "../assets/img/nexoraLogoImg.png";
 import Navbar from "./Navbar.tsx";
-import Search from "./search/Search.tsx";
+import SearchInput from "./search/SearchInput.tsx";
 import {Link} from "react-router";
 import TopBanner from "./TopBanner.tsx";
 import MobileSearchOverlay from "./search/MobileSearchOverlay.tsx";
@@ -54,8 +54,8 @@ function Header(): JSX.Element {
                                 </svg>
                             </button>
                         </div>
-                        <Search inputRef={desktopSearchInputRef} isSearchOpen={isSearchOpen} close={close}
-                                open={open}/>
+                        <SearchInput inputRef={desktopSearchInputRef} isSearchOpen={isSearchOpen} close={close}
+                                     open={open}/>
                     </div>
                     <div className="flex gap-6 max-lg:hidden">
                         <div onMouseEnter={() => setIsLoginDropdownOpen(true)}

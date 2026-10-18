@@ -55,7 +55,7 @@ const categories = [
     {name: 'لوازم آشپزخانه', slug: 'kitchenware', parentSlug: 'lavazem-khane'},
     {name: 'دکوراسیون منزل', slug: 'decoration', parentSlug: 'lavazem-khane'},
     {name: 'گوشی موبایل', slug: 'mobile'},
-    {name: 'لوازم جانبی موبایل', slug: 'accessories', parentSlug: 'mobile'},
+    {name: 'لوازم جانبی موبایل', slug: 'mobile-accessories', parentSlug: 'mobile'},
     {name: 'قاب و محافظ صفحه موبایل', slug: 'phone-case', parentSlug: 'mobile'},
     {name: 'لپ‌تاپ', slug: 'laptop'},
     {name: 'لپ‌تاپ اداری', slug: 'office-laptop', parentSlug: 'laptop'},

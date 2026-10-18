@@ -1,7 +1,7 @@
 import {type JSX, type RefObject, useEffect, useState} from 'react';
 import TopSearches from "./TopSearches.tsx";
 import searchBanner from "../../assets/بنر تبلیغاتی2.jpg";
-import {Link} from "react-router";
+import {Link, useNavigate} from "react-router";
 
 
 interface SearchProps {
@@ -11,17 +11,33 @@ interface SearchProps {
     inputRef: RefObject<HTMLInputElement | null>;
 }
 
-function Search({open, close, isSearchOpen, inputRef}: SearchProps): JSX.Element {
+function SearchInput({open, close, isSearchOpen, inputRef}: SearchProps): JSX.Element {
     const [searchText, setSearchText] = useState('');
+    const navigate = useNavigate();
 
     useEffect(() => {
         if (!isSearchOpen) {
             setSearchText("");
         }
-    }, [isSearchOpen])
+    }, [isSearchOpen]);
+
+
+    const handleSearch = () => {
+        const keyword = searchText.trim();
+
+        if (!keyword) return;
+
+        const params = new URLSearchParams({keyword});
+        navigate(`/search?${params.toString()}`);
+        close();
+    }
 
     return (
-        <form className="relative w-full flex items-center gap-5 max-lg:hidden">
+        <form onSubmit={(e) => {
+            e.preventDefault();
+            handleSearch();
+
+        }} className="relative w-full flex items-center gap-5 max-lg:hidden">
             {isSearchOpen && <div
                 onClick={() => {
                     close();
@@ -62,7 +78,7 @@ function Search({open, close, isSearchOpen, inputRef}: SearchProps): JSX.Element
                      className="absolute inset-0 left-[-6px] right-[-6px] mt-2 min-h-80 bg-white rounded-3xl shadow-2xl p-5 z-20 mt-[-7px] max-lg:hidden">
                     <div className="mt-12 grid">
                         <TopSearches/>
-                        <Link to="/category/fashion/women-clothing" className="block mt-3 w-full">
+                        <Link to="/search?category=fashion-women" onClick={close} className="block mt-3 w-full">
                             <img src={searchBanner} alt="بنر تبلیغاتی"
                                  className="object-cover w-full h-auto 2xl:h-40 rounded-sm"/>
                         </Link>
@@ -73,4 +89,4 @@ function Search({open, close, isSearchOpen, inputRef}: SearchProps): JSX.Element
     );
 }
 
-export default Search;
+export default SearchInput;

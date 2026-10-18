@@ -29,9 +29,31 @@ const getProducts = asyncHandler(async (req, res) => {
         ? {$text: {$search: req.query.keyword}}
         : {};
 
-    const categoryFilter = req.query.category
-        ? {category: req.query.category}
-        : {};
+    let categoryFilter = {};
+
+    if (req.query.category) {
+        const rootCategory = await Category.findOne({
+            slug: req.query.category,
+        });
+
+        if (rootCategory) {
+            const categoryIds = [rootCategory._id];
+
+            if (rootCategory.slug !== 'mobile') {
+                const childCategories = await Category.find({
+                    parent: rootCategory._id,
+                }).select('_id');
+
+                categoryIds.push(
+                    ...childCategories.map((category) => category._id)
+                );
+            }
+
+            categoryFilter = {
+                category: {$in: categoryIds},
+            };
+        }
+    }
 
     const priceFilter = {};
     if (req.query.minPrice) priceFilter.$gte = Number(req.query.minPrice);

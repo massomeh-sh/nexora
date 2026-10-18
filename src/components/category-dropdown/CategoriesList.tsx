@@ -15,7 +15,8 @@ function CategoriesList(): JSX.Element {
                     return (
                         <li key={item.id} dir="rtl"
                             className={`relative w-full font-medium ${activeCategory === item.id ? "bg-white border-l border-dark-gray" : ""}`}>
-                            <Link to={item.slug} type="button" onMouseEnter={() => setActiveCategory(item.id)}
+                            <Link to={`/search?category=${item.slug}`} type="button"
+                                  onMouseEnter={() => setActiveCategory(item.id)}
                                   onFocus={() => setActiveCategory(item.id)}
                                   className="flex w-full p-5 items-center justify-between cursor-pointer hover:bg-white">
                                 <span
@@ -32,7 +33,8 @@ function CategoriesList(): JSX.Element {
             {activeCategory !== null && selectedCategory && (
                 <div
                     className={`absolute top-0 right-full h-full bg-white flex flex-col gap-6 p-5 w-70 overflow-y-auto shadow-lg rounded-bl-lg`}>
-                    <Link to={selectedCategory.slug} className="flex items-center gap-2 ml-auto text-blue-800">
+                    <Link to={`/search?category=${selectedCategory.slug}`}
+                          className="flex items-center gap-2 ml-auto text-blue-800">
                         <svg aria-hidden xmlns="http://www.w3.org/2000/svg" fill="currentColor" width="24" height="24"
                              viewBox="0 0 24 24">
                             <path
@@ -45,7 +47,7 @@ function CategoriesList(): JSX.Element {
                         {selectedCategory.children.map((child) => (
                             <li key={child.id}
                                 className="text-dark-gray hover:text-primary-blue border-b border-black ml-auto p-3">
-                                <Link to={child.slug}>
+                                <Link to={`/search?category=${child.slug}`}>
                                     {child.title}
                                 </Link>
                             </li>

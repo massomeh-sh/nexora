@@ -15,6 +15,8 @@ import ProductPage from "../pages/Product.tsx";
 import {productLoader} from "../loaders/productLoader.ts";
 import {MutationCache, QueryClient} from "@tanstack/react-query";
 import Loading from "../UI/Loading.tsx";
+import SearchPage from "../pages/Search.tsx";
+import {searchLoader} from "../loaders/searchLoader.ts";
 
 
 export const queryClient = new QueryClient({
@@ -46,6 +48,11 @@ const router = createBrowserRouter([
                 element: <ProductPage/>,
                 loader: productLoader,
                 hydrateFallbackElement: <Loading/>,
+            },
+            {
+                path: "search", element: <SearchPage/>,
+                loader: searchLoader,
+                hydrateFallbackElement: <Loading/>
             }
         ]
     },

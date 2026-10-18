@@ -6,11 +6,13 @@ import ProductOverview from "../components/product/ProductOverview.tsx";
 import ProductQuickAddBar from "../components/product/ProductQuickAddBar.tsx";
 import ProductDetails from "../components/product/ProductDetails.tsx";
 
+
 function ProductPage() {
     const [searchParams] = useSearchParams();
     const productId = searchParams.get("product_id") || "";
     const {data} = useQuery(productQuery(productId));
     const product = data?.data;
+
 
     if (!product) return null;
 
