@@ -1,16 +1,18 @@
 import Modal from "../../UI/modal/Modal.tsx";
-import {hideModal, showCartSidebar} from "../../store/ui/uiSlice.ts";
-import {useAppSelector} from "../../hooks/useAppSelector.ts";
-import {priceFormater} from "../../util/priceFormater.ts";
+import {hideModal, showCartSidebar} from "@/store/ui/uiSlice.ts";
+import {useAppSelector} from "@/hooks/useAppSelector.ts";
+import {priceFormater} from "@/utils/priceFormater.ts";
 import ModalProductImages from "./ModalProductImages.tsx";
 import {
     addLocalItem, makeSelectIsInCart, makeSelectProductQuantity,
-} from "../../store/cart/cartSlice.ts";
+} from "@/store/cart/cartSlice.ts";
 import {useMemo, useState} from "react";
 import useAddToCart from "../../hooks/useAddToCart.ts";
 import DiscountPrice from "../../UI/DiscountPrice.tsx";
 import UpdateQuantity from "../../UI/UpdateQuantity.tsx";
 import {useDispatch} from "react-redux";
+import {useSelectedVariant} from "@/hooks/useSelectedVariant.ts";
+import ProductColors from "@/components/product/ProductColors.tsx";
 
 function QuickViewModal() {
     const currentModal = useAppSelector(state => state.ui.currentModal);
@@ -18,16 +20,21 @@ function QuickViewModal() {
     const dispatch = useDispatch();
     const isAuthenticated = useAppSelector(state => state.user.isAuthenticated);
     const selectIsInCart = useMemo(() => makeSelectIsInCart(), []);
+
+
+    const products = selectedProduct ?? undefined;
+    const {displayProduct, variantId, setVariantId} = useSelectedVariant(products);
+
     const currentCartItem = useAppSelector(state => {
-        if (!selectedProduct) return;
-        return selectIsInCart(state, selectedProduct._id)
+        if (!displayProduct) return;
+        return selectIsInCart(state, displayProduct._id)
     });
 
     const selectProductQuantity = useMemo(() => makeSelectProductQuantity(), []);
 
     const productQuantity = useAppSelector((state) => {
-        if (!selectedProduct) return 1;
-        return selectProductQuantity(state, selectedProduct._id);
+        if (!displayProduct) return 1;
+        return selectProductQuantity(state, displayProduct._id);
     });
 
     const [quantity, setQuantity] = useState(productQuantity);
@@ -35,13 +42,13 @@ function QuickViewModal() {
     const {mutate} = useAddToCart()
 
     const handleAddToCart = () => {
-        if (!selectedProduct) return;
+        if (!displayProduct) return;
         if (isAuthenticated) {
-            mutate({productId: selectedProduct._id, quantity});
+            mutate({productId: displayProduct._id, quantity, variantId});
             dispatch(hideModal());
             dispatch(showCartSidebar());
         } else {
-            dispatch(addLocalItem({product: selectedProduct, quantity: Number(quantity)}));
+            dispatch(addLocalItem({product: displayProduct, quantity: Number(quantity)}));
             dispatch(hideModal());
             dispatch(showCartSidebar());
         }
@@ -51,7 +58,9 @@ function QuickViewModal() {
         setQuantity(newQuantity);
     }
 
-    if (!selectedProduct) return null;
+
+    if (!selectedProduct || !displayProduct) return null;
+    const hasVariant = displayProduct.variants?.length > 0;
 
     return (
         <Modal open={currentModal === "quickView"} close={() => dispatch(hideModal())}
@@ -65,13 +74,13 @@ function QuickViewModal() {
                               d="M6 18 17.94 6M18 18 6.06 6"/>
                     </svg>
                 </button>
-                <ModalProductImages product={selectedProduct} key={selectedProduct._id}/>
+                <ModalProductImages product={displayProduct} key={displayProduct._id}/>
                 <div className="w-1/2 max-md:w-full flex flex-col gap-4 px-2">
-                    <h1 className="text-2xl max-md:text-lg font-normal">{selectedProduct.name}</h1>
+                    <h1 className="text-2xl max-md:text-lg font-normal">{displayProduct.name}</h1>
                     <div className="flex gap-5 text-lg">
-                        <DiscountPrice discount={selectedProduct.discountPrice}/>
+                        <DiscountPrice discount={displayProduct.discountPrice}/>
                         <span
-                            className="text-primary-blue">{priceFormater(selectedProduct.price)} تومان</span>
+                            className="text-primary-blue">{priceFormater(displayProduct.price)} تومان</span>
                     </div>
                     <ul className="flex gap-5 text-dark-gray">
                         <li className="space-x-2">
@@ -81,13 +90,17 @@ function QuickViewModal() {
                                 <path
                                     d="M12.0006 18.26L4.94715 22.2082L6.52248 14.2799L0.587891 8.7918L8.61493 7.84006L12.0006 0.5L15.3862 7.84006L23.4132 8.7918L17.4787 14.2799L19.054 22.2082L12.0006 18.26Z"></path>
                             </svg>
-                            <span>{selectedProduct.rating} از ۵</span>
+                            <span>{displayProduct.rating} از ۵</span>
                         </li>
                         <li className="w-1.5 h-1.5 bg-light-gray rounded-full my-auto"></li>
                         <li>۲ دیدگاه</li>
                     </ul>
+                    {hasVariant &&
+                        <ProductColors product={displayProduct} onChangeValue={setVariantId}
+                                       selectedVariantId={variantId}/>
+                    }
                     <div className="bg-light-gray w-full h-0.5 my-5"/>
-                    <p className="text-dark-gray text-lg max-md:text-sm">{selectedProduct.description || "hi"}</p>
+                    <p className="text-dark-gray text-lg max-md:text-sm">{displayProduct.description || "hi"}</p>
                     <div className="flex gap-8">
                         <p className="flex items-center gap-2">
                             <svg stroke="currentColor" fill="currentColor" strokeWidth="0" viewBox="0 0 24 24"

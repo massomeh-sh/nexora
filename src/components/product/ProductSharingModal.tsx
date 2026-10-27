@@ -54,7 +54,7 @@ function ProductSharingModal(): JSX.Element {
 
                 {share.map((i) => i.name === selectedBtn && (
                     <div className="flex" key={i.id}>
-                        <input dir="ltr" readOnly defaultValue={`${i.url}${productUrl}`} type="text"
+                        <input name="ProductLink" id="productLink" dir="ltr" readOnly defaultValue={`${i.url}${productUrl}`} type="text"
                                className="w-3/4 outline-none border border-gray-300 p-2"/>
                         <button onClick={() => handleCopy(`${i.url}${productUrl}`)}
                                 className="text-white bg-primary-blue mr-auto py-2 px-4 rounded-lg cursor-pointer hover:scale-105 transition-transform duration-500">کپی

@@ -1,5 +1,5 @@
 import type {Product} from "../../types/product.ts";
-import {priceFormater} from "../../util/priceFormater.ts";
+import {priceFormater} from "@/utils/priceFormater.ts";
 import {Link} from "react-router";
 import {useDispatch} from "react-redux";
 import {showModal} from "../../store/ui/uiSlice.ts";
@@ -8,7 +8,6 @@ import {useCartQuantity} from "../../hooks/useCartQuantity.ts";
 import UpdateQuantityWithDeleteBtn from "../../UI/UpdateQuantityWithDeleteBtn.tsx";
 import bannerTablighati from "../../assets/img/catalog-1_25350.jpg";
 import {useProductCart} from "../../hooks/useProductCart.ts";
-
 
 interface ProductOrderDetailsProps {
     // Props here
@@ -35,17 +34,17 @@ function ProductOrderDetails({product}: ProductOrderDetailsProps) {
     return (
         <div className="sticky top-[140px] md:w-3/6 w-full h-fit flex flex-col gap-6">
             <div
-                className="flex flex-col gap-5 bg-white rounded-lg text-lg px-6 py-7">
+                className="flex flex-col gap-5 bg-white rounded-lg text-lg px-6 py-7 max-lg:-mt-3">
                 <h2 className=" font-semibold border-b border-light-gray pb-3">فرم سفارش</h2>
 
                 <div className="flex flex-col gap-5">
 
 
-                    <div className="flex items-center justify-center gap-5">
+                    <div className="flex max-2xl:flex-col items-center justify-center gap-5">
                         <img src={`${import.meta.env.VITE_API_BASE_URL}${product?.images?.[0]}`}
                              alt={product?.name}
-                             className="w-20 h-full object-cover rounded-sm bg-light-gray border border-light-gray"/>
-                        <p className="ml-auto font-semibold">{product?.name}</p>
+                             className="w-20 max-2xl:w-full h-full object-cover rounded-sm bg-light-gray border border-light-gray"/>
+                        <p className="ml-auto font-semibold max-2xl:text-sm">{product?.name}</p>
                     </div>
 
 
@@ -56,14 +55,14 @@ function ProductOrderDetails({product}: ProductOrderDetailsProps) {
                         </p>
 
 
-                        {product?.discountPrice && <div className="flex gap-2">
+                        {product.discountPrice > 0 && <div className="flex gap-2">
                             <DiscountPrice discount={product?.price} className="text-sm"/>
                             <span className="bg-primary-red px-3 text-white text-sm rounded-full">
                                     {product.discountPercent}%
                                 </span>
                         </div>}
                         <p className="mr-auto space-x-1">
-                            <span>{priceFormater(product?.discountPrice || 0)}</span>
+                            <span>{priceFormater(product?.discountPrice || product.price)}</span>
                             <span className="text-sm">تومان</span>
                         </p>
                     </div>
@@ -105,18 +104,20 @@ function ProductOrderDetails({product}: ProductOrderDetailsProps) {
                 </button>}
                 <div className="bg-light-gray w-full h-[0.9px] mt-1"/>
 
-                <button className="text-sm flex items-center self-end gap-1 text-dark-gray cursor-pointer"
-                        onClick={() => dispatch(showModal("shareLink"))}>
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
-                         fill="none">
-                        <path fillRule="evenodd" clipRule="evenodd"
-                              d="M13.803 5.33333C13.803 3.49238 15.3022 2 17.1515 2C19.0008 2 20.5 3.49238 20.5 5.33333C20.5 7.17428 19.0008 8.66667 17.1515 8.66667C16.2177 8.66667 15.3738 8.28596 14.7671 7.67347L10.1317 10.8295C10.1745 11.0425 10.197 11.2625 10.197 11.4872C10.197 11.9322 10.109 12.3576 9.94959 12.7464L15.0323 16.0858C15.6092 15.6161 16.3473 15.3333 17.1515 15.3333C19.0008 15.3333 20.5 16.8257 20.5 18.6667C20.5 20.5076 19.0008 22 17.1515 22C15.3022 22 13.803 20.5076 13.803 18.6667C13.803 18.1845 13.9062 17.7255 14.0917 17.3111L9.05007 13.9987C8.46196 14.5098 7.6916 14.8205 6.84848 14.8205C4.99917 14.8205 3.5 13.3281 3.5 11.4872C3.5 9.64623 4.99917 8.15385 6.84848 8.15385C7.9119 8.15385 8.85853 8.64725 9.47145 9.41518L13.9639 6.35642C13.8594 6.03359 13.803 5.6896 13.803 5.33333Z"
-                              fill="currentColor"/>
-                    </svg>
-                    <span className="no-underline hover:underline underline-offset-4">اشتراک گذاری لینک محصول</span>
-                </button>
+                <div className="flex gap-3 items-center self-end">
+                    <button className="text-sm flex items-center gap-1 text-dark-gray cursor-pointer"
+                            onClick={() => dispatch(showModal("shareLink"))}>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+                             fill="none">
+                            <path fillRule="evenodd" clipRule="evenodd"
+                                  d="M13.803 5.33333C13.803 3.49238 15.3022 2 17.1515 2C19.0008 2 20.5 3.49238 20.5 5.33333C20.5 7.17428 19.0008 8.66667 17.1515 8.66667C16.2177 8.66667 15.3738 8.28596 14.7671 7.67347L10.1317 10.8295C10.1745 11.0425 10.197 11.2625 10.197 11.4872C10.197 11.9322 10.109 12.3576 9.94959 12.7464L15.0323 16.0858C15.6092 15.6161 16.3473 15.3333 17.1515 15.3333C19.0008 15.3333 20.5 16.8257 20.5 18.6667C20.5 20.5076 19.0008 22 17.1515 22C15.3022 22 13.803 20.5076 13.803 18.6667C13.803 18.1845 13.9062 17.7255 14.0917 17.3111L9.05007 13.9987C8.46196 14.5098 7.6916 14.8205 6.84848 14.8205C4.99917 14.8205 3.5 13.3281 3.5 11.4872C3.5 9.64623 4.99917 8.15385 6.84848 8.15385C7.9119 8.15385 8.85853 8.64725 9.47145 9.41518L13.9639 6.35642C13.8594 6.03359 13.803 5.6896 13.803 5.33333Z"
+                                  fill="currentColor"/>
+                        </svg>
+                        <span className="no-underline hover:underline underline-offset-4">اشتراک گذاری لینک محصول</span>
+                    </button>
+                </div>
             </div>
-            <Link to="category/fashion/women-clothing"
+            <Link to="/products?category=پوشاک-زنانه"
                   className="max-md:hidden border border-white rounded-lg overflow-hidden">
                 <img src={bannerTablighati} alt="بنر تبلیغاتی"/>
             </Link>

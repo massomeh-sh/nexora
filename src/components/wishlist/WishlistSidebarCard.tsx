@@ -1,12 +1,14 @@
-import {type JSX, useMemo} from 'react';
+import {useMemo} from 'react';
 import {Link, useNavigate} from "react-router";
-import {priceFormater} from "../../util/priceFormater.ts";
+import {priceFormater} from "@/utils/priceFormater.ts";
 import {useDispatch} from "react-redux";
 import {useAppSelector} from "../../hooks/useAppSelector.ts";
 import {addLocalItem, makeSelectIsInCart} from "../../store/cart/cartSlice.ts";
 import type {Product} from "../../types/product.ts";
 import useAddToCart from "../../hooks/useAddToCart.ts";
 import {hideWishlistSidebar, setSelectedProduct, showConfirmationModal} from "../../store/ui/uiSlice.ts";
+import {useSelectedVariant} from "@/hooks/useSelectedVariant.ts";
+import DiscountPrice from "@/UI/DiscountPrice.tsx";
 
 interface WishlistSidebarCardProps {
     // Props here
@@ -15,17 +17,20 @@ interface WishlistSidebarCardProps {
 
 function WishlistSidebarCard({
                                  product
-                             }: WishlistSidebarCardProps): JSX.Element {
+                             }: WishlistSidebarCardProps) {
     const dispatch = useDispatch();
     const navigate = useNavigate();
+    const {variantId, displayProduct} = useSelectedVariant(product);
     const selectIsInCart = useMemo(() => makeSelectIsInCart(), []);
-    const currentCartItem = useAppSelector(state => selectIsInCart(state, product._id))
+    const currentCartItem = useAppSelector(state => selectIsInCart(state, product._id, variantId));
     const isAuthenticated = useAppSelector(state => state.user.isAuthenticated);
 
     const {mutate: addToCart} = useAddToCart();
 
+    if (!displayProduct) return;
+
     const handleDeleteItem = () => {
-        dispatch(setSelectedProduct(product));
+        dispatch(setSelectedProduct(displayProduct));
         dispatch(showConfirmationModal("wishlist"));
     }
 
@@ -36,31 +41,28 @@ function WishlistSidebarCard({
         }
 
         if (isAuthenticated) {
-            addToCart({productId: product._id, quantity: 1})
+            addToCart({productId: displayProduct._id, quantity: 1, variantId})
         } else {
-            dispatch(addLocalItem({product: product, quantity: 1}))
+            dispatch(addLocalItem({product: displayProduct, quantity: 1}))
         }
     }
 
     return (
         <div
             className='group flex items-start justify-center gap-3 w-full py-2 max-lg:text-sm'>
-            <Link to={`/product/${product.name}/?product_id=${product._id}`}
+            <Link to={`/product/${displayProduct.name}/?product_id=${displayProduct._id}`}
                   className="w-1/3 h-full bg-light-gray border border-light-gray rounded-2xl overflow-hidden">
-                <img src={`${import.meta.env.VITE_API_BASE_URL}${product.images[0]}`}
+                <img alt={displayProduct.name} src={`${import.meta.env.VITE_API_BASE_URL}${displayProduct.images[0]}`}
                      className="w-full h-full object-cover block transition-all duration-300 group-hover:-rotate-3 group-hover:scale-110"/>
             </Link>
             <div className="flex flex-col w-full gap-1.5">
-                <h3 className="line-clamp-2">{product.name}</h3>
+                <h3 className="line-clamp-2">{displayProduct.name}</h3>
                 <div className="flex gap-1">
-                    <p className="text-dark-gray relative">
-                        <span>{priceFormater(product.price)}</span>
-                        <span className="absolute top-3/5 left-0 -translate-y-1/2 w-full h-[1px] bg-dark-gray"/>
-                    </p>
-                    <p className="text-green-600 space-x-1">
-                        <span>{priceFormater(product.discountPrice)}</span>
+                    <DiscountPrice discount={displayProduct.price}/>
+                    {displayProduct.discountPrice > 0 && <p className="text-green-600 space-x-1">
+                        <span>{priceFormater(displayProduct.discountPrice)}</span>
                         <span>تومان</span>
-                    </p>
+                    </p>}
                 </div>
                 <button
                     onClick={handleCart}

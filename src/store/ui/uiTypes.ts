@@ -1,18 +1,19 @@
-import type {Product} from "../../types/product.ts";
+import type {Product} from "@/types/product.ts";
 
-interface ProductAlertState {
-    isOpen: boolean;
+export interface ProductAlertState {
     productName: string;
     productImage: string;
     productId: string;
+    variantId?: string;
     type: "add" | "remove";
 }
 
 export interface uiState {
     currentModal: "quickView" | "shareLink" | null;
+    currentBottomSheet: "sortReview" | null;
     confirmationModal: "cart" | "wishlist" | null;
     activeSidebar: "cart" | "wishlist" | "menu" | null;
-    selectedProduct: Product | null;
+    selectedProduct: Product | undefined;
     productAlert: ProductAlertState | null;
 }
 

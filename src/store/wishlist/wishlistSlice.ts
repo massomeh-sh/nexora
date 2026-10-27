@@ -4,7 +4,7 @@ import type {RootState} from "../index.ts";
 import type {Product} from "../../types/product.ts";
 
 const initialState: WishlistState = {
-    items: []
+    items: [],
 }
 
 const wishlistSlice = createSlice({

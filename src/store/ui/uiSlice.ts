@@ -1,10 +1,11 @@
 import {createSlice, type PayloadAction} from "@reduxjs/toolkit";
-import type {Confirmation, uiState} from "./uiTypes.ts";
+import type {Confirmation, ProductAlertState, uiState} from "./uiTypes.ts";
 
 const initialState: uiState = {
     currentModal: null,
+    currentBottomSheet: null,
     confirmationModal: null,
-    selectedProduct: null,
+    selectedProduct: undefined,
     activeSidebar: null,
 
     productAlert: null,
@@ -14,6 +15,12 @@ const uiSlice = createSlice({
     name: "ui",
     initialState,
     reducers: {
+        showBottomSheet: (state, action: PayloadAction<"sortReview">) => {
+            state.currentBottomSheet = action.payload;
+        },
+        hideBottomSheet: (state) => {
+            state.currentBottomSheet = null;
+        },
         showModal: (state, action: PayloadAction<"quickView" | "shareLink">) => {
             state.currentModal = action.payload;
         },
@@ -30,6 +37,12 @@ const uiSlice = createSlice({
         hideCartSidebar: (state) => {
             state.activeSidebar = null;
         },
+        showMenuSidebar: (state) => {
+            state.activeSidebar = "menu";
+        },
+        hideMenuSidebar: (state) => {
+            state.activeSidebar = null;
+        },
         showWishlistSidebar: (state) => {
             state.activeSidebar = "wishlist";
         },
@@ -37,10 +50,10 @@ const uiSlice = createSlice({
             state.activeSidebar = null;
         },
         setSelectedProduct: (state, action) => {
-            state.selectedProduct = null;
+            state.selectedProduct = undefined;
             state.selectedProduct = action.payload;
         },
-        showProductAlert: (state, action) => {
+        showProductAlert: (state, action: PayloadAction<ProductAlertState>) => {
             state.productAlert = {
                 ...action.payload,
             }
@@ -56,13 +69,17 @@ export const {
     showConfirmationModal,
     hideModal,
     showModal,
+    showBottomSheet,
+    hideBottomSheet,
     showWishlistSidebar,
     hideWishlistSidebar,
     showCartSidebar,
     hideCartSidebar,
     setSelectedProduct,
     showProductAlert,
-    hideProductAlert
+    hideProductAlert,
+    showMenuSidebar,
+    hideMenuSidebar,
 } = uiSlice.actions;
 
 export default uiSlice.reducer;

@@ -118,6 +118,7 @@ const importData = async () => {
                 reviews,
                 numReviews,
                 rating: Number(rating.toFixed(1)),
+                variants: p.variants || [],
             };
         });
 

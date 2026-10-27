@@ -3,7 +3,7 @@ const Wishlist = require('../models/Wishlist');
 const Product = require('../models/Product');
 
 const POPULATE_FIELDS =
-    'name images price discountPrice stock unit brand rating numReviews description shortDescription';
+    'name images price discountPrice stock unit brand rating numReviews description shortDescription variants';
 
 // @desc    گرفتن لیست علاقه‌مندی‌های کاربر
 // @route   GET /api/wishlist

@@ -8,6 +8,14 @@ const initialState: CartState = {
     cart: null,
 }
 
+export const getItemVariantId = (item: SelectableCartItem): string | undefined => {
+    const fromServer = (item as { variantId?: string | null }).variantId;
+    return fromServer ?? item.product.selectedVariantId ?? undefined;
+};
+
+const isSameItem = (item: SelectableCartItem, productId: string, variantId?: string) =>
+    item.product._id === productId && getItemVariantId(item) === (variantId ?? undefined);
+
 const cartSlice = createSlice({
     name: "cart",
     initialState,
@@ -17,8 +25,10 @@ const cartSlice = createSlice({
             state.cart = action.payload;
         },
         addLocalItem: (state, action: PayloadAction<LocalCartItem>) => {
-            console.log("addLocalItem payload", action.payload.quantity, action.payload.product.stock);
-            const existingItem = state.localItems.find((item) => item.product._id === action.payload.product._id);
+            const {product} = action.payload;
+            const existingItem = state.localItems.find((item) =>
+                isSameItem(item, product._id, product.selectedVariantId)
+            );
 
             if (existingItem) {
                 existingItem.quantity = action.payload.quantity;
@@ -26,14 +36,22 @@ const cartSlice = createSlice({
                 state.localItems.push(action.payload);
             }
         },
-        updateLocalItem: (state, action: PayloadAction<{ productId: string; quantity: number }>) => {
-            const item = state.localItems.find((item) => item.product._id === action.payload.productId);
+        updateLocalItem: (state, action: PayloadAction<{
+            productId: string;
+            variantId?: string;
+            quantity: number
+        }>) => {
+            const item = state.localItems.find((it) =>
+                isSameItem(it, action.payload.productId, action.payload.variantId)
+            );
             if (item) {
                 item.quantity = action.payload.quantity;
             }
         },
-        removeLocalItem: (state, action: PayloadAction<string>) => {
-            state.localItems = state.localItems.filter((item) => item.product._id !== action.payload)
+        removeLocalItem: (state, action: PayloadAction<{ productId: string; variantId?: string }>) => {
+            state.localItems = state.localItems.filter(
+                (it) => !isSameItem(it, action.payload.productId, action.payload.variantId)
+            );
         },
         clearLocalCart: (state) => {
             state.localItems = [];
@@ -56,12 +74,9 @@ export const selectedCartSubTotal = createSelector([selectedCartItems], (items) 
     }, 0);
 });
 
-const selectedCartItem = (state: RootState, id: string): SelectableCartItem | undefined => {
-    if (state.user.isAuthenticated) {
-        return state.cart.cart?.items.find((item) => item.product._id === id);
-    } else {
-        return state.cart.localItems.find((it) => it.product._id === id);
-    }
+const selectedCartItem = (state: RootState, id: string, variantId?: string): SelectableCartItem | undefined => {
+    const items = state.user.isAuthenticated ? state.cart.cart?.items : state.cart.localItems;
+    return items?.find((item) => isSameItem(item, id, variantId));
 }
 
 export const makeSelectProductQuantity = () => createSelector([selectedCartItem], (selectedItem) => {
@@ -69,12 +84,10 @@ export const makeSelectProductQuantity = () => createSelector([selectedCartItem]
     return selectedItem.quantity;
 });
 
-
 export const makeSelectIsInCart = () => createSelector([selectedCartItem], (selectedItem) => {
     if (!selectedItem) return;
     return {selectedItem, isInCart: !!selectedItem};
 });
-
 
 export const {setCart, addLocalItem, updateLocalItem, removeLocalItem, clearLocalCart} = cartSlice.actions;
 

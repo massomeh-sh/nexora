@@ -11,7 +11,7 @@ interface SearchProps {
     inputRef: RefObject<HTMLInputElement | null>;
 }
 
-function SearchInput({open, close, isSearchOpen, inputRef}: SearchProps): JSX.Element {
+function DesktopSearch({open, close, isSearchOpen, inputRef}: SearchProps): JSX.Element {
     const [searchText, setSearchText] = useState('');
     const navigate = useNavigate();
 
@@ -28,7 +28,7 @@ function SearchInput({open, close, isSearchOpen, inputRef}: SearchProps): JSX.El
         if (!keyword) return;
 
         const params = new URLSearchParams({keyword});
-        navigate(`/search?${params.toString()}`);
+        navigate(`/products?${params.toString()}`);
         close();
     }
 
@@ -47,7 +47,7 @@ function SearchInput({open, close, isSearchOpen, inputRef}: SearchProps): JSX.El
                 className={`fixed inset-0 bg-black/30 z-10 transition-opacity duration-300`}></div>}
             <div
                 className={`relative z-30 bg-light-gray max-l:bg-white flex-1 min-w-0 h-11 rounded-full px-4 py-1 max-lg:hidden`}>
-                <input autoComplete="off" ref={inputRef} onFocus={() => {
+                <input name="searchInput" autoComplete="off" ref={inputRef} onFocus={() => {
                     open();
                     inputRef.current?.focus();
                 }} type="text" placeholder="" value={searchText} onChange={(e) => setSearchText(e.target.value)}
@@ -77,8 +77,8 @@ function SearchInput({open, close, isSearchOpen, inputRef}: SearchProps): JSX.El
                 <div onMouseDown={(e) => e.preventDefault()}
                      className="absolute inset-0 left-[-6px] right-[-6px] mt-2 min-h-80 bg-white rounded-3xl shadow-2xl p-5 z-20 mt-[-7px] max-lg:hidden">
                     <div className="mt-12 grid">
-                        <TopSearches/>
-                        <Link to="/search?category=fashion-women" onClick={close} className="block mt-3 w-full">
+                        <TopSearches closeSearch={close}/>
+                        <Link to="/products?category=پوشاک-زنانه" onClick={close} className="block mt-3 w-full">
                             <img src={searchBanner} alt="بنر تبلیغاتی"
                                  className="object-cover w-full h-auto 2xl:h-40 rounded-sm"/>
                         </Link>
@@ -89,4 +89,4 @@ function SearchInput({open, close, isSearchOpen, inputRef}: SearchProps): JSX.El
     );
 }
 
-export default SearchInput;
+export default DesktopSearch;

@@ -17,7 +17,7 @@ function CartConfirmationModal(): JSX.Element {
 
     const closeModal = () => {
         dispatch(hideModal());
-        dispatch(setSelectedProduct(null));
+        dispatch(setSelectedProduct(undefined));
     }
 
     const deleteItem = () => {
@@ -27,7 +27,7 @@ function CartConfirmationModal(): JSX.Element {
         if (isAuthenticated && itemId) {
             mutateRemoveItem(itemId);
         } else {
-            dispatch(removeLocalItem(selectedProduct._id));
+            dispatch(removeLocalItem({productId: selectedProduct._id, variantId: selectedProduct.selectedVariantId}));
         }
 
         dispatch(hideModal());

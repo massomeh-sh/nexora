@@ -19,8 +19,10 @@ import CartConfirmationModal from "../components/cart/CartConfirmationModal.tsx"
 import {toast} from "sonner";
 import {ApiError} from "../api/apiClient.ts";
 import TopLoadingBar from "../components/TopLoadingBar.tsx";
-import ProductSharingModal from "../components/product/ProductSharingModal.tsx";
+import ProductSharingModal from "@/components/product/ProductSharingModal.tsx";
 import {useDispatch} from "react-redux";
+import MenuSidebar from "../components/MenuSidebar.tsx";
+import FilterBottomSheet from "@/components/product/FilterBottomSheet.tsx";
 
 function LayoutPage(): JSX.Element {
     const dispatch = useDispatch();
@@ -83,18 +85,20 @@ function LayoutPage(): JSX.Element {
 
     return (
         <>
-            <ScrollRestoration/>
+            <ScrollRestoration getKey={(location) => location.pathname}/>
             <TopLoadingBar/>
             <Header/>
             <MobileNavigation/>
             <WishlistAlert/>
             <WishlistSidebar/>
             <CartSidebar/>
+            <MenuSidebar/>
+            <FilterBottomSheet/>
             <QuickViewModal key={selectedProduct?._id}/>
             <ProductSharingModal key={currentModal}/>
             <WishlistConfirmationModal/>
             <CartConfirmationModal/>
-            <main className="px-32 py-8 max-lg:px-6">
+            <main className="px-36 py-8 max-lg:px-6">
                 <Outlet/>
             </main>
         </>

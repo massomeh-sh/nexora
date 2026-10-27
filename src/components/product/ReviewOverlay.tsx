@@ -1,10 +1,13 @@
-import {type JSX, useEffect, useState} from 'react';
+import {type JSX, useState} from 'react';
 import type {Product, ReviewSortType} from "../../types/product.ts";
 import {useHashOverlay} from "../../hooks/useHashOverlay.ts";
-import {sortReviews} from "../../util/sortReviews.ts";
+import {sortReviews} from "@/utils/sortReviews.ts";
 import Review from "../../UI/Review.tsx";
 import {useAppSelector} from "../../hooks/useAppSelector.ts";
-import ReviewSortDropdown from "./ReviewSortDropdown.tsx";
+import ReviewBottomSheet from "./ReviewBottomSheet.tsx";
+import {useDispatch} from "react-redux";
+import {showBottomSheet} from "@/store/ui/uiSlice.ts";
+import {useLockBodyScroll} from "@/hooks/useLockBodyScroll.ts";
 
 interface ReviewOverlayProps {
     // Props here
@@ -15,32 +18,15 @@ function ReviewOverlay({product}: ReviewOverlayProps): JSX.Element {
     const isAuthenticated = useAppSelector(state => state.user.isAuthenticated);
     const [sortBy, setSortBy] = useState<ReviewSortType>("newest");
     const {close, isOpen} = useHashOverlay("reviews");
-    const [openPanel, setOpenPanel] = useState(false);
+    const dispatch = useDispatch();
 
-    const closePanel = () => setOpenPanel(false);
     const setReviewSort = (sort: ReviewSortType) => {
         setSortBy(sort);
     }
 
     const sortedReviews = sortReviews(sortBy, product);
 
-    useEffect(() => {
-        if (!isOpen) return;
-        const media = window.matchMedia("(min-width: 1536px)");
-        const previousOverflow = document.body.style.overflow;
-
-        const updateScroll = () => {
-            document.body.style.overflow = media.matches ? previousOverflow : "hidden";
-        }
-
-        updateScroll();
-        media.addEventListener("change", updateScroll);
-
-        return () => {
-            media.removeEventListener("change", updateScroll);
-            document.body.style.overflow = previousOverflow;
-        };
-    }, [isOpen, close]);
+    useLockBodyScroll(isOpen);
 
     return (
         <>
@@ -62,7 +48,7 @@ function ReviewOverlay({product}: ReviewOverlayProps): JSX.Element {
                             <span>دیدگاه</span>
                         </p>
                     </div>
-                    <button onClick={() => setOpenPanel(true)} className="cursor-pointer">
+                    <button onClick={() => dispatch(showBottomSheet("sortReview"))} className="cursor-pointer">
                         <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none">
                             <g id="Edit / Sort_Ascending">
                                 <path id="Vector" d="M4 17H10M4 12H13M18 11V19M18 19L21 16M18 19L15 16M4 7H16"
@@ -81,7 +67,7 @@ function ReviewOverlay({product}: ReviewOverlayProps): JSX.Element {
                     ))}
                 </ul>
             </div>
-            <ReviewSortDropdown isOpen={openPanel} currentSort={sortBy} close={closePanel} changeSort={setReviewSort}/>
+            <ReviewBottomSheet currentSort={sortBy} changeSort={setReviewSort}/>
         </>);
 }
 

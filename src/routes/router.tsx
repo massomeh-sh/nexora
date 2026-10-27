@@ -15,7 +15,7 @@ import ProductPage from "../pages/Product.tsx";
 import {productLoader} from "../loaders/productLoader.ts";
 import {MutationCache, QueryClient} from "@tanstack/react-query";
 import Loading from "../UI/Loading.tsx";
-import SearchPage from "../pages/Search.tsx";
+import ProductsPage from "../pages/Products.tsx";
 import {searchLoader} from "../loaders/searchLoader.ts";
 
 
@@ -23,11 +23,13 @@ export const queryClient = new QueryClient({
     mutationCache: new MutationCache({
         onSuccess: async (_data, _variables, _context, mutation) => {
             const key = mutation.options.mutationKey;
-            await queryClient.invalidateQueries({
-                queryKey: key,
-            })
+            if (key) {
+                await queryClient.invalidateQueries({
+                    queryKey: key,
+                })
+            }
         }
-    })
+    }), defaultOptions: {queries: {staleTime: 60 * 1000}}
 })
 
 const router = createBrowserRouter([
@@ -50,9 +52,8 @@ const router = createBrowserRouter([
                 hydrateFallbackElement: <Loading/>,
             },
             {
-                path: "search", element: <SearchPage/>,
+                path: "products", element: <ProductsPage/>,
                 loader: searchLoader,
-                hydrateFallbackElement: <Loading/>
             }
         ]
     },

@@ -1,11 +1,12 @@
 import {type JSX} from 'react';
 import type {Product} from "../../types/product.ts";
 import {Link, useNavigate} from "react-router";
-import {priceFormater} from "../../util/priceFormater.ts";
-import UpdateQuantityWithDeleteBtn from "../UpdateQuantityWithDeleteBtn.tsx";
+import {priceFormater} from "@/utils/priceFormater.ts";
+import UpdateQuantityWithDeleteBtn from "../../UI/UpdateQuantityWithDeleteBtn.tsx";
 import {useCartQuantity} from "../../hooks/useCartQuantity.ts";
 import {useDispatch} from "react-redux";
 import {hideCartSidebar} from "../../store/ui/uiSlice.ts";
+import {getCartItemView} from "@/utils/getCartItemView.ts";
 
 interface CartSidebarCartProps {
     // Props here
@@ -13,14 +14,16 @@ interface CartSidebarCartProps {
     productQuantity: number;
     isAuthenticated: boolean;
     itemId?: string;
+    variantId?: string;
 }
 
 
-function CartSidebarCart({
+function CartSidebarCard({
                              product,
                              productQuantity,
                              isAuthenticated,
-                             itemId
+                             itemId,
+                             variantId,
                          }: CartSidebarCartProps): JSX.Element {
     const navigate = useNavigate();
     const dispatch = useDispatch();
@@ -34,9 +37,11 @@ function CartSidebarCart({
         handleRemoveItem
     } = useCartQuantity(productQuantity, isAuthenticated, itemId, product);
 
+    const {image, colorName} = getCartItemView(product, variantId);
+
 
     return (
-        <div className="flex group relative gap-3 py-2 max-lg:text-sm max-md:text-xs">
+        <div className="flex group relative gap-3 py-2 max-lg:text-sm">
             <Link to="" onClick={(e) => {
                 e.preventDefault();
                 navigate(`/product/${product.name}/?product_id=${product._id}`);
@@ -44,15 +49,16 @@ function CartSidebarCart({
             }} className="absolute inset-0"/>
             <div
                 className="w-1/3 h-full max-md:self-center bg-light-gray border border-light-gray rounded-2xl overflow-hidden pointer-events-none">
-                <img src={`${import.meta.env.VITE_API_BASE_URL}${product.images[0]}`} alt={product.name}
+                <img src={`${import.meta.env.VITE_API_BASE_URL}${image}`} alt={product.name}
                      className="w-full h-full object-cover block transition-all duration-300 group-hover:-rotate-3 group-hover:scale-110"/>
             </div>
             <div className="w-full self-center">
                 <p className="line-clamp-2">{product.name}</p>
+                {colorName && <p className="text-sm text-dark-gray mt-1">رنگ: {colorName}</p>}
                 <div className="flex max-sm:flex-col max-sm:gap-2 items-center mt-2">
                     <div className="text-green-600 flex items-center gap-1 h-4 relative z-10 max-sm:self-start">
                         <p className="space-x-1">
-                            <span>{priceFormater((product.discountPrice) * productQuantity)}</span>
+                            <span>{priceFormater((product.discountPrice || product.price) * productQuantity)}</span>
                             <span>تومان</span>
                         </p>
                         <p className="flex items-center justify-center"><span
@@ -69,4 +75,4 @@ function CartSidebarCart({
     );
 }
 
-export default CartSidebarCart;
+export default CartSidebarCard;

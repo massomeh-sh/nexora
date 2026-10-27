@@ -1,7 +1,7 @@
 import type {JSX} from 'react';
 import type {ReactTypes, ReviewType} from "../types/product.ts";
-import StarRating from "./StarRating.tsx";
-import {dateFormater} from "../util/dateFormater.ts";
+import StarRating from "./ProductRating.tsx";
+import {dateFormater} from "@/utils/dateFormater.ts";
 import CommentReactions from "./CommentReactions.tsx";
 import {useReactToComment} from "../hooks/useReactToComment.ts";
 
@@ -32,7 +32,7 @@ function MobileReview({productId, reviewData, isAuthenticated}: MobileReviewProp
 
             <StarRating productRating={reviewData.rating}/>
 
-            <p className="text-dark-gray">{reviewData.comment}</p>
+            <p className="text-dark-gray line-clamp-3">{reviewData.comment}</p>
 
             <div className="flex items-center justify-between mt-auto">
                 <p className="text-sm text-gray-400">{dateFormater(reviewData.createdAt ?? "")}</p>

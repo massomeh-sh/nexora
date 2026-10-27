@@ -7,7 +7,7 @@ function HomePage(): JSX.Element {
 
     return (
         <section>
-            <div className="-mx-32 max-lg:-mx-6 -my-8 pb-8">
+            <div className="-mx-36 max-lg:-mx-6 -my-8 pb-8">
                 <ProductImageSlider/>
             </div>
             <main>

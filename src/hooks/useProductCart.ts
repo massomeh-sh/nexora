@@ -11,15 +11,19 @@ export function useProductCart(product: Product) {
     const isAuthenticated = useAppSelector(state => state.user.isAuthenticated);
     const dispatch = useDispatch();
     const selectIsInCart = useMemo(() => makeSelectIsInCart(), []);
-    const currentCartItem = useAppSelector(state => selectIsInCart(state, product?._id || ""));
+
+    const variantId = product.selectedVariantId;
+
+    const currentCartItem = useAppSelector(state => selectIsInCart(state, product?._id || "", variantId));
     const cart = useAppSelector(state => state.cart);
-    const itemId = cart?.cart?.items.find((i) => i.product._id === product?._id)?._id || product?._id;
+    const itemId = cart?.cart?.items.find((i) => i.product._id === product?._id && (i.variantId ?? undefined) === variantId)?._id || product?._id;
 
     const productQuantity = currentCartItem?.isInCart ? currentCartItem?.selectedItem.quantity : product?.quantity;
 
+
     const handleAddToCart = () => {
         if (isAuthenticated) {
-            mutateAddToCart({productId: product._id, quantity: 1});
+            mutateAddToCart({productId: product._id, variantId, quantity: 1});
         } else {
             dispatch(addLocalItem({product, quantity: 1}));
         }

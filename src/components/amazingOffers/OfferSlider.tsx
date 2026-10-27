@@ -1,5 +1,5 @@
 import {type JSX, useCallback, useEffect, useRef, useState} from 'react';
-import ProductCard from "../../UI/product/ProductCard.tsx";
+import ProductCard from "@/components/product/ProductCard.tsx";
 import type {Product} from "../../types/product.ts";
 import {Link} from "react-router";
 import * as React from "react";

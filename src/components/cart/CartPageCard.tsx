@@ -1,12 +1,13 @@
 import {type JSX, useEffect, useState} from 'react';
 import type {CartItem, LocalCartItem} from "../../types/cart.ts";
 import {Link} from "react-router";
-import {priceFormater} from "../../util/priceFormater.ts";
+import {priceFormater} from "@/utils/priceFormater.ts";
 import useUpdateCartMutation from "../../hooks/useUpdateCartMutation.ts";
 import {updateLocalItem} from "../../store/cart/cartSlice.ts";
 import {useAppSelector} from "../../hooks/useAppSelector.ts";
 import {useDispatch} from "react-redux";
 import {setSelectedProduct, showConfirmationModal} from "../../store/ui/uiSlice.ts";
+import {getCartItemView} from "@/utils/getCartItemView.ts";
 
 interface CartPageCardProps {
     // Props here
@@ -33,7 +34,11 @@ function CartPageCard({cartItem}: CartPageCardProps): JSX.Element {
         if (isAuthenticated) {
             mutateUpdateQuantity({itemId: cartItemId, quantity: quantity + 1});
         } else {
-            dispatch(updateLocalItem({productId: cartItem.product._id, quantity: quantity + 1}));
+            dispatch(updateLocalItem({
+                productId: cartItem.product._id,
+                quantity: quantity + 1,
+                variantId: cartItem.variantId
+            }));
         }
     }
 
@@ -41,7 +46,11 @@ function CartPageCard({cartItem}: CartPageCardProps): JSX.Element {
         if (isAuthenticated) {
             mutateUpdateQuantity({itemId: cartItemId, quantity: quantity - 1})
         } else {
-            dispatch(updateLocalItem({productId: cartItem.product._id, quantity: quantity - 1}));
+            dispatch(updateLocalItem({
+                productId: cartItem.product._id,
+                quantity: quantity - 1,
+                variantId: cartItem.variantId
+            }));
         }
     }
 
@@ -50,19 +59,26 @@ function CartPageCard({cartItem}: CartPageCardProps): JSX.Element {
         dispatch(showConfirmationModal("cart"));
     }
 
+    const {image, colorName, colorHex} = getCartItemView(cartItem.product, cartItem.variantId);
+
     return (
-        <div className="grid grid-cols-[auto_2fr_1fr] gap-5 max-md:gap-3 max-md:text-sm">
+        <div className="grid grid-cols-[auto_2fr_1fr] max-md:grid-cols-[auto_auto] gap-5 max-md:gap-3 max-md:text-sm">
             <Link to={productPath}
                   className="lg:w-52 w-28 bg-light-gray border border-light-gray rounded-lg overflow-hidden">
-                <img src={`${import.meta.env.VITE_API_BASE_URL}${cartItem.product.images[0]}`}
+                <img src={`${import.meta.env.VITE_API_BASE_URL}${image}`}
                      alt={cartItem.product.name} className="w-full h-full object-cover"/>
             </Link>
-            <div className="max-md:col-span-2">
-                <Link to={productPath}>{cartItem.product.name}</Link>
+            <div>
+                <Link to={productPath} className="line-clamp-2">{cartItem.product.name}</Link>
+                {colorName && (<p className="space-x-2 text-dark-gray mt-1">
+                    <span>رنگ:</span>
+                    <span style={{color: `${colorHex}`}} className="font-semibold">{colorName}</span>
+                </p>)}
                 <p className="text-dark-gray mt-2 max-sm:text-xs">{cartItem.product.shortDescription}</p>
             </div>
-            <div className="flex flex-col justify-self-end gap-2 max-md:justify-self-start">
-                <p className="space-x-1">
+            <div
+                className="flex flex-col justify-self-end gap-2 max-md:justify-self-start max-md:col-span-2 max-md:justify-self-stretch">
+                <p className="space-x-1 max-md:self-end">
                     <span>{priceFormater(cartItem.product.discountPrice || cartItem.product.price)}</span>
                     <span>تومان</span>
                 </p>
@@ -78,7 +94,11 @@ function CartPageCard({cartItem}: CartPageCardProps): JSX.Element {
                                if (isAuthenticated && cartItemId) {
                                    mutateUpdateQuantity({itemId: cartItemId, quantity: +value});
                                } else {
-                                   dispatch(updateLocalItem({productId: cartItem.product._id, quantity: +value}))
+                                   dispatch(updateLocalItem({
+                                       productId: cartItem.product._id,
+                                       quantity: +value,
+                                       variantId: cartItem.variantId
+                                   }))
                                }
 
                            }}/>

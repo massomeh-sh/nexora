@@ -15,11 +15,13 @@ function useToggleWishlist() {
     const {mutateAsync} = useMutation({
         mutationFn: toggleWishlist,
         onSuccess: (data) => {
+            console.log("data from server", data.data.products);
             dispatch(setWishlist(data.data.products));
         }
     })
 
-    const handleWishlist = async (product: Product, isFavoriteProduct: boolean) => {
+    const handleWishlist = async (product: Product, isFavoriteProduct: boolean, variantId?: string) => {
+        console.log(product, variantId);
         if (isAuthenticated) {
             try {
                 await mutateAsync(product._id);
@@ -31,6 +33,7 @@ function useToggleWishlist() {
                     productImage: product.images[0],
                     productId: product._id,
                     type: isFavoriteProduct ? "remove" : "add",
+                    variantId,
                 }))
             } catch (err) {
                 const error = err instanceof ApiError ? err.message : "خطا در حذف/اضافه کردن محصول به علاقه مندی";
@@ -45,6 +48,7 @@ function useToggleWishlist() {
                 productImage: product.images[0],
                 productId: product._id,
                 type: isFavoriteProduct ? "remove" : "add",
+                variantId,
             }))
         }
     }

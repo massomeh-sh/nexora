@@ -10,8 +10,8 @@ export function getCart(): Promise<CartResponse> {
     return apiFetch("/api/cart")
 }
 
-export function addToCart({productId, quantity}: AddToCartParams): Promise<CartResponse> {
-    return apiFetch("/api/cart", {method: "POST", body: JSON.stringify({productId, quantity})})
+export function addToCart({productId, variantId, quantity}: AddToCartParams): Promise<CartResponse> {
+    return apiFetch("/api/cart", {method: "POST", body: JSON.stringify({productId, quantity, variantId})})
 }
 
 export function updateCartItem({itemId, quantity}: { itemId: string, quantity: number }): Promise<CartResponse> {

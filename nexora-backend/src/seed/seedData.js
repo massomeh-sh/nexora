@@ -4,7 +4,7 @@ const users = [
     {
         name: 'سارا محمدی',
         email: 'customer1@kartify.ir',
-        password: '123456',
+        password: 'Sara8888!',
     },
     {
         name: 'رضا کریمی',
@@ -48,29 +48,30 @@ const reviewPool = {
 };
 
 const categories = [
-    {name: 'بهداشتی و آرایشی', slug: 'behdashti-arayeshi'},
-    {name: 'مراقبت پوست', slug: 'skin-care', parentSlug: 'behdashti-arayeshi'},
-    {name: 'عطر و ادکلن', slug: 'perfume', parentSlug: 'behdashti-arayeshi'},
-    {name: 'خانه و آشپزخانه', slug: 'lavazem-khane'},
-    {name: 'لوازم آشپزخانه', slug: 'kitchenware', parentSlug: 'lavazem-khane'},
-    {name: 'دکوراسیون منزل', slug: 'decoration', parentSlug: 'lavazem-khane'},
-    {name: 'گوشی موبایل', slug: 'mobile'},
-    {name: 'لوازم جانبی موبایل', slug: 'mobile-accessories', parentSlug: 'mobile'},
-    {name: 'قاب و محافظ صفحه موبایل', slug: 'phone-case', parentSlug: 'mobile'},
-    {name: 'لپ‌تاپ', slug: 'laptop'},
-    {name: 'لپ‌تاپ اداری', slug: 'office-laptop', parentSlug: 'laptop'},
-    {name: 'لپ‌تاپ گیمینگ', slug: 'gaming-laptop', parentSlug: 'laptop'},
-    {name: 'کیف و کوله لپ‌تاپ', slug: 'laptop-bag', parentSlug: 'laptop'},
-    {name: 'لوازم خانگی برقی', slug: 'appliances'},
-    {name: 'ویدئو، صوت و سرگرمی', slug: 'video-audio-entertainment', parentSlug: 'appliances'},
-    {name: 'تلویزیون', slug: 'tv', parentSlug: 'appliances'},
-    {name: 'مد و پوشاک', slug: 'fashion'},
-    {name: 'پوشاک مردانه', slug: 'fashion-men', parentSlug: 'fashion'},
-    {name: 'پوشاک زنانه', slug: 'fashion-women', parentSlug: 'fashion'},
-    {name: 'لوازم حیوانات خانگی', slug: 'petshop'},
-    {name: 'لوازم جانبی حیوانات', slug: 'pet-accessories', parentSlug: 'petshop'},
-    {name: 'غذای حیوانات خانگی', slug: 'pet-food', parentSlug: 'petshop'},
-    {name: 'بهداشت و درمان حیوانات', slug: 'pet-health', parentSlug: 'petshop'},
+    {name: 'بهداشتی و آرایشی', slug: 'بهداشتی-آرایشی'},
+    {name: 'مراقبت پوست', slug: 'مراقبت-پوست', parentSlug: 'بهداشتی-آرایشی'},
+    {name: 'عطر و ادکلن', slug: 'عطر-ادکلن', parentSlug: 'بهداشتی-آرایشی'},
+    {name: 'خانه و آشپزخانه', slug: 'خانه-آشپزخانه'},
+    {name: 'لوازم آشپزخانه', slug: 'لوازم-آشپزخانه', parentSlug: 'خانه-آشپزخانه'},
+    {name: 'دکوراسیون منزل', slug: 'دکوراسیون-منزل', parentSlug: 'خانه-آشپزخانه'},
+    {name: 'موبایل', slug: 'موبایل'},
+    {name: "گوشی موبایل", slug: "گوشی-موبایل", parentSlug: "موبایل"},
+    {name: 'لوازم جانبی موبایل', slug: 'لوازم-جانبی-موبایل', parentSlug: 'موبایل'},
+    {name: 'قاب و محافظ صفحه موبایل', slug: 'قاب-محافظ-موبایل', parentSlug: 'موبایل'},
+    {name: 'لپ‌تاپ', slug: 'لپ-تاپ'},
+    {name: 'لپ‌تاپ اداری', slug: 'لپ-تاپ-اداری', parentSlug: 'لپ-تاپ'},
+    {name: 'لپ‌تاپ گیمینگ', slug: 'لپ-تاپ-گیمینگ', parentSlug: 'لپ-تاپ'},
+    {name: 'کیف و کوله لپ‌تاپ', slug: 'کیف-کوله-لپ-تاپ', parentSlug: 'لپ-تاپ'},
+    {name: 'لوازم خانگی برقی', slug: 'لوازم-خانگی-برقی'},
+    {name: 'ویدئو، صوت و سرگرمی', slug: 'ویدئو-صوت-سرگرمی', parentSlug: 'لوازم-خانگی-برقی'},
+    {name: 'تلویزیون', slug: 'تلویزیون', parentSlug: 'لوازم-خانگی-برقی'},
+    {name: 'مد و پوشاک', slug: 'مد-پوشاک'},
+    {name: 'پوشاک مردانه', slug: 'پوشاک-مردانه', parentSlug: 'مد-پوشاک'},
+    {name: 'پوشاک زنانه', slug: 'پوشاک-زنانه', parentSlug: 'مد-پوشاک'},
+    {name: 'لوازم حیوانات خانگی', slug: 'لوازم-حیوانات-خانگی'},
+    {name: 'لوازم جانبی حیوانات', slug: 'لوازم-جانبی-حیوانات', parentSlug: 'لوازم-حیوانات-خانگی'},
+    {name: 'غذای حیوانات خانگی', slug: 'غذای-حیوانات-خانگی', parentSlug: 'لوازم-حیوانات-خانگی'},
+    {name: 'بهداشت و درمان حیوانات', slug: 'بهداشت-درمان-حیوانات', parentSlug: 'لوازم-حیوانات-خانگی'},
 ];
 
 // نکته: productsها بعد از ساخت دسته‌بندی‌ها با آی‌دی واقعی پر می‌شوند (در seed.js)
@@ -806,50 +807,50 @@ productTemplates.push(
 productTemplates.push(
     {
         categorySlug: 'fashion-women',
-        name: 'تاپ رکابی پپلوم (مشکی زغالی)',
-        description: 'تاپ رکابی زنانه با طراحی پپلوم و دامن چین‌دار، ظاهری شیک و زنانه به شما می‌دهد. پارچه‌ی ریبی کشی آن روی بدن راحت می‌نشیند و اندام را به‌خوبی نشان می‌دهد. رنگ مشکی زغالی آن با اغلب شلوار و دامن‌ها هماهنگ است و هم برای استفاده‌ی روزمره و هم برای مهمانی مناسب است. دامن چین‌دار پپلوم، جلوه‌ی دلنشینی به لباس می‌بخشد. گزینه‌ای مناسب برای ست کردن با ژاکت و کت.',
-        shortDescription: 'تاپ رکابی زنانه با طراحی پپلوم و دامن چین‌دار، پارچه‌ی ریبی کشی و رنگ مشکی زغالی، مناسب روزمره و مهمانی.',
+        name: 'تاپ رکابی پپلوم',
+        description: 'تاپ رکابی زنانه با طراحی پپلوم و دامن چین‌دار، ظاهری شیک و زنانه به شما می‌دهد. پارچه‌ی ریبی کشی آن روی بدن راحت می‌نشیند و اندام را به‌خوبی نشان می‌دهد. این تاپ در سه رنگ مشکی زغالی، آبی ملایم و توت‌فرنگی عرضه می‌شود و هم برای استفاده‌ی روزمره و هم برای مهمانی مناسب است. دامن چین‌دار پپلوم، جلوه‌ی دلنشینی به لباس می‌بخشد. گزینه‌ای مناسب برای ست کردن با ژاکت، کت، شلوار جین و دامن‌های ساده.',
+        shortDescription: 'تاپ رکابی زنانه با طراحی پپلوم و دامن چین‌دار، پارچه‌ی ریبی کشی، در سه رنگ مشکی زغالی، آبی ملایم و توت‌فرنگی.',
         price: 2450000,
         discountPrice: 2299000,
         unit: 'عدد',
-        stock: 22,
+        stock: 60, // مجموع موجودی رنگ‌ها: 22 + 20 + 18
         brand: '',
         images: [
             '/uploads/fashion-women/peplum-top-black-1.png',
             '/uploads/fashion-women/peplum-top-black-2.png',
             '/uploads/fashion-women/peplum-top-black-3.png',
         ],
-    },
-    {
-        categorySlug: 'fashion-women',
-        name: 'تاپ رکابی پپلوم (آبی ملایم)',
-        description: 'تاپ رکابی زنانه با طراحی پپلوم و دامن چین‌دار، ظاهری شیک و زنانه به شما می‌دهد. پارچه‌ی ریبی کشی آن روی بدن راحت می‌نشیند و اندام را به‌خوبی نشان می‌دهد. رنگ آبی ملایم آن حس تازگی و آرامش دارد و هم برای استفاده‌ی روزمره و هم برای مهمانی مناسب است. دامن چین‌دار پپلوم، جلوه‌ی دلنشینی به لباس می‌بخشد. گزینه‌ای مناسب برای ست کردن با شلوار جین و دامن‌های ساده.',
-        shortDescription: 'تاپ رکابی زنانه با طراحی پپلوم و دامن چین‌دار، پارچه‌ی ریبی کشی و رنگ آبی ملایم، مناسب روزمره و مهمانی.',
-        price: 2450000,
-        discountPrice: 2299000,
-        unit: 'عدد',
-        stock: 20,
-        brand: '',
-        images: [
-            '/uploads/fashion-women/peplum-top-blue-1.png',
-            '/uploads/fashion-women/peplum-top-blue-2.png',
-            '/uploads/fashion-women/peplum-top-blue-3.png',
-        ],
-    },
-    {
-        categorySlug: 'fashion-women',
-        name: 'تاپ رکابی پپلوم (توت فرنگی)',
-        description: 'تاپ رکابی زنانه با طراحی پپلوم و دامن چین‌دار، ظاهری شیک و زنانه به شما می‌دهد. پارچه‌ی ریبی کشی آن روی بدن راحت می‌نشیند و اندام را به‌خوبی نشان می‌دهد. رنگ توت‌فرنگی آن شاداب و جذاب است و هم برای استفاده‌ی روزمره و هم برای مهمانی مناسب است. دامن چین‌دار پپلوم، جلوه‌ی دلنشینی به لباس می‌بخشد. گزینه‌ای مناسب برای کسانی که رنگ‌های زنده را دوست دارند.',
-        shortDescription: 'تاپ رکابی زنانه با طراحی پپلوم و دامن چین‌دار، پارچه‌ی ریبی کشی و رنگ توت‌فرنگی، مناسب روزمره و مهمانی.',
-        price: 2450000,
-        discountPrice: 2299000,
-        unit: 'عدد',
-        stock: 18,
-        brand: '',
-        images: [
-            '/uploads/fashion-women/peplum-top-strawberry-1.png',
-            '/uploads/fashion-women/peplum-top-strawberry-2.png',
-            '/uploads/fashion-women/peplum-top-strawberry-3.png',
+        variants: [
+            {
+                colorName: 'مشکی زغالی',
+                colorHex: '#2b2b2b',
+                stock: 22,
+                images: [
+                    '/uploads/fashion-women/peplum-top-black-1.png',
+                    '/uploads/fashion-women/peplum-top-black-2.png',
+                    '/uploads/fashion-women/peplum-top-black-3.png',
+                ],
+            },
+            {
+                colorName: 'آبی ملایم',
+                colorHex: '#9ec5e8',
+                stock: 20,
+                images: [
+                    '/uploads/fashion-women/peplum-top-blue-1.png',
+                    '/uploads/fashion-women/peplum-top-blue-2.png',
+                    '/uploads/fashion-women/peplum-top-blue-3.png',
+                ],
+            },
+            {
+                colorName: 'بنفش کم رنگ',
+                colorHex: '#CBC3E3',
+                stock: 18,
+                images: [
+                    '/uploads/fashion-women/peplum-top-strawberry-1.png',
+                    '/uploads/fashion-women/peplum-top-strawberry-2.png',
+                    '/uploads/fashion-women/peplum-top-strawberry-3.png',
+                ],
+            },
         ],
     },
     {
@@ -999,5 +1000,32 @@ productTemplates.push(
         ],
     }
 );
+
+
+const slugMap = {
+    'behdashti-arayeshi': 'بهداشتی-آرایشی',
+    'skin-care': 'مراقبت-پوست',
+    'perfume': 'عطر-ادکلن',
+    'kitchenware': 'لوازم-آشپزخانه',
+    'decoration': 'دکوراسیون-منزل',
+    'mobile': 'گوشی-موبایل',
+    'accessories': 'لوازم-جانبی-موبایل',
+    'phone-case': 'قاب-محافظ-موبایل',
+    'gaming-laptop': 'لپ-تاپ-گیمینگ',
+    'office-laptop': 'لپ-تاپ-اداری',
+    'laptop-bag': 'کیف-کوله-لپ-تاپ',
+    'appliances': 'لوازم-خانگی-برقی',
+    'video-audio-entertainment': 'ویدئو-صوت-سرگرمی',
+    'tv': 'تلویزیون',
+    'fashion-men': 'پوشاک-مردانه',
+    'fashion-women': 'پوشاک-زنانه',
+    'pet-accessories': 'لوازم-جانبی-حیوانات',
+    'pet-food': 'غذای-حیوانات-خانگی',
+    'pet-health': 'بهداشت-درمان-حیوانات',
+};
+
+productTemplates.forEach((p) => {
+    p.categorySlug = slugMap[p.categorySlug] ?? p.categorySlug;
+});
 
 module.exports = {users, categories, productTemplates, reviewPool};

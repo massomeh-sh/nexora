@@ -9,60 +9,60 @@ import PetFoodIcon from "../assets/icons/pet-food-paw-svgrepo-com.svg?react";
 
 export const categories: CategoriesList[] = [
     {
-        id: 1, name: "موبایل", icon: MobileIcon, slug: "mobile", children: [
-            {id: 12, title: "گوشی موبایل", slug: "mobile"},
-            {id: 13, title: "لوازم جانبی موبایل", slug: "mobile-accessories"},
-            {id: 14, title: "قاب و محافظ", slug: "phone-case"},
+        id: 1, name: "موبایل", icon: MobileIcon, slug: "موبایل", children: [
+            {id: 12, title: "گوشی موبایل", slug: "گوشی-موبایل"},
+            {id: 13, title: "لوازم جانبی موبایل", slug: "لوازم-جانبی-موبایل"},
+            {id: 14, title: "قاب و محافظ", slug: "قاب-محافظ-موبایل"},
         ]
     },
     {
-        id: 2, name: "لپ تاپ", icon: LaptopIcon, slug: "laptop", children: [
-            {id: 22, title: "لپ‌تاپ اداری", slug: "office-laptop"},
-            {id: 23, title: "لپ‌تاپ گیمینگ", slug: "gaming-laptop"},
-            {id: 24, title: "کیف و کوله لپ‌تاپ", slug: "laptop-bag"},
+        id: 2, name: "لپ تاپ", icon: LaptopIcon, slug: "لپ-تاپ", children: [
+            {id: 22, title: "لپ‌تاپ اداری", slug: "لپ-تاپ-اداری"},
+            {id: 23, title: "لپ‌تاپ گیمینگ", slug: "لپ-تاپ-گیمینگ"},
+            {id: 24, title: "کیف و کوله لپ‌تاپ", slug: "کیف-کوله-لپ-تاپ"},
         ]
     },
     {
         id: 3,
-        name: "لوازم آشپزخانه",
+        name: "خانه-آشپزخانه",
         icon: SofaIcon,
-        slug: "lavazem-khane",
+        slug: "خانه-آشپزخانه",
         children: [
-            {id: 32, title: "ظروف آشپزخانه", slug: "kitchenware"},
-            {id: 33, title: "دکوراسیون", slug: "decoration"},
+            {id: 32, title: "ظروف آشپزخانه", slug: "لوازم-آشپزخانه"},
+            {id: 33, title: "دکوراسیون", slug: "دکوراسیون-منزل"},
         ]
     },
     {
         id: 4,
         name: "لوازم خانگی برقی",
         icon: FridgeIcon,
-        slug: "appliances",
+        slug: "لوازم-خانگی-برقی",
         children: [
-            {id: 41, title: "تلویزیون", slug: "tv"},
-            {id: 42, title: "لوازم صوتی و تصویری", slug: "video-audio-entertainment"},
+            {id: 41, title: "تلویزیون", slug: "تلویزیون"},
+            {id: 42, title: "لوازم صوتی و تصویری", slug: "ویدئو-صوت-سرگرمی"},
         ]
     },
     {
         id: 5,
         name: "آرایشی بهداشتی",
         icon: MakeupIcon,
-        slug: "behdashti-arayeshi",
+        slug: "بهداشتی-آرایشی",
         children: [
-            {id: 51, title: "مراقبت پوست", slug: "skin-care"},
-            {id: 52, title: "عطر و ادکلن", slug: "perfume"},
+            {id: 51, title: "مراقبت پوست", slug: "مراقبت-پوست"},
+            {id: 52, title: "عطر و ادکلن", slug: "عطر-ادکلن"},
         ]
     },
     {
-        id: 6, name: "مد و پوشاک", icon: ClothesIcon, slug: "fashion", children: [
-            {id: 61, title: "پوشاک مردانه", slug: "fashion-men"},
-            {id: 62, title: "پوشاک زنانه", slug: "fashion-women"},
+        id: 6, name: "مد و پوشاک", icon: ClothesIcon, slug: "مد-پوشاک", children: [
+            {id: 61, title: "پوشاک مردانه", slug: "پوشاک-مردانه"},
+            {id: 62, title: "پوشاک زنانه", slug: "پوشاک-زنانه"},
         ]
     },
     {
-        id: 7, name: "پت شاپ", icon: PetFoodIcon, slug: "petshop", children: [
-            {id: 71, title: "غذای حیوانات خانگی", slug: "pet-food"},
-            {id: 72, title: "لوازم جانبی حیوانات", slug: "pet-accessories"},
-            {id: 73, title: "بهداشت و درمان حیوانات", slug: "pet-health"},
+        id: 7, name: "پت شاپ", icon: PetFoodIcon, slug: "لوازم-حیوانات-خانگی", children: [
+            {id: 71, title: "غذای حیوانات خانگی", slug: "غذای-حیوانات-خانگی"},
+            {id: 72, title: "لوازم جانبی حیوانات", slug: "لوازم-جانبی-حیوانات"},
+            {id: 73, title: "بهداشت و درمان حیوانات", slug: "بهداشت-درمان-حیوانات"},
         ]
     },
 ];

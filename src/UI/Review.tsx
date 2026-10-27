@@ -1,6 +1,6 @@
 import {type JSX, useEffect, useRef, useState} from 'react';
-import {dateFormater} from "../util/dateFormater.ts";
-import StarRating from "./StarRating.tsx";
+import {dateFormater} from "@/utils/dateFormater.ts";
+import StarRating from "./ProductRating.tsx";
 import type {ReactTypes, ReviewType} from "../types/product.ts";
 import Notification from "./Notification.tsx";
 import {useReactToComment} from "../hooks/useReactToComment.ts";
@@ -66,7 +66,7 @@ function Review({reviewData, isAuthenticated, productId}: UserReviewProps): JSX.
 
                 <div className="flex items-center gap-3">
                     <h3 className="space-x-2 text-lg">
-                        <span>{reviewData?.name ? reviewData?.name : "کاربر نکسورا"}</span>
+                        <span>{reviewData?.authorName}</span>
                         <span className="text-light-gray">&bull;</span>
                     </h3>
                     <div className="bg-green-200 text-green-800 text-sm p-1 px-2 rounded-full">خریدار</div>
@@ -120,8 +120,10 @@ function Review({reviewData, isAuthenticated, productId}: UserReviewProps): JSX.
             <StarRating productRating={reviewData.rating}/>
             <div className="flex items-center justify-between">
                 <p>{reviewData.comment}</p>
-                <CommentReactions reviewData={reviewData} isPending={isPending}
-                                  handleReact={handleReact}/>
+                <div className="self-end">
+                    <CommentReactions reviewData={reviewData} isPending={isPending}
+                                      handleReact={handleReact}/>
+                </div>
             </div>
             {showNotification && (
                 <Notification onClose={handleCloseNotification} message="گزارش شما با موفقیت ارسال شد."/>

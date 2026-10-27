@@ -3,7 +3,7 @@ import Sidebar from "../../UI/Sidebar.tsx";
 import {useDispatch} from "react-redux";
 import {hideWishlistSidebar} from "../../store/ui/uiSlice.ts";
 import {useAppSelector} from "../../hooks/useAppSelector.ts";
-import WishlistSidebarCard from "../../UI/product/WishlistSidebarCard.tsx";
+import WishlistSidebarCard from "./WishlistSidebarCard.tsx";
 import {clearWishlist} from "../../api/wishlist.ts";
 import {clearLocalWishlist} from "../../store/wishlist/wishlistSlice.ts";
 import {useMutation} from "@tanstack/react-query";
@@ -19,6 +19,7 @@ function WishlistSidebar(): JSX.Element {
     const isAuthenticated = useAppSelector(state => state.user.isAuthenticated);
 
     const {mutate} = useMutation({
+        mutationKey: ["wishlist"],
         mutationFn: clearWishlist,
         onError: (error) => {
             const err = error instanceof ApiError ? error.message : "خطا در حذف محصولات مورد علاقه";

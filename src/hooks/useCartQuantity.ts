@@ -33,7 +33,7 @@ export function useCartQuantity(productQuantity: number, isAuthenticated: boolea
         if (isAuthenticated && itemId) {
             mutateUpdateQuantity({itemId, quantity});
         } else {
-            dispatch(updateLocalItem({productId: product._id, quantity}));
+            dispatch(updateLocalItem({productId: product._id, quantity, variantId: product.selectedVariantId}));
         }
     }
 

@@ -2,10 +2,10 @@ import type {JSX} from 'react';
 import {useAppSelector} from "../../hooks/useAppSelector.ts";
 import Sidebar from "../../UI/Sidebar.tsx";
 import {hideCartSidebar} from "../../store/ui/uiSlice.ts";
-import CartSidebarCart from "../../UI/product/CartSidebarCart.tsx";
+import CartSidebarCard from "./CartSidebarCard.tsx";
 import emptyCartSidebar from "../../assets/icons/empty-cart-sidebar.svg";
 import {useClearCart} from "../../hooks/useClearCart.ts";
-import {clearLocalCart} from "../../store/cart/cartSlice.ts";
+import {clearLocalCart, getItemVariantId} from "../../store/cart/cartSlice.ts";
 import {useDispatch} from "react-redux";
 
 function CartSidebar(): JSX.Element {
@@ -43,9 +43,11 @@ function CartSidebar(): JSX.Element {
             <ul>
                 {isAuthenticated && cart.cart ? (
                     cart.cart.items.map((item) => (
-                        <li key={item.product._id} className="not-last:border-b not-last:border-light-gray">
-                            <CartSidebarCart
+                        <li key={`${item.product._id}-${getItemVariantId(item) ?? "no-variant"}`}
+                            className="not-last:border-b not-last:border-light-gray">
+                            <CartSidebarCard
                                 product={item.product}
+                                variantId={item.variantId}
                                 productQuantity={item.quantity}
                                 itemId={item._id}
                                 isAuthenticated={true}
@@ -54,9 +56,11 @@ function CartSidebar(): JSX.Element {
                     ))
                 ) : (
                     cart.localItems.map((item) => (
-                        <li key={item.product._id} className="not-last:border-b not-last:border-light-gray">
-                            <CartSidebarCart
+                        <li key={`${item.product._id}-${getItemVariantId(item) ?? "no-variant"}`}
+                            className="not-last:border-b not-last:border-light-gray">
+                            <CartSidebarCard
                                 product={item.product}
+                                variantId={item.variantId}
                                 productQuantity={item.quantity}
                                 isAuthenticated={false}
                             />

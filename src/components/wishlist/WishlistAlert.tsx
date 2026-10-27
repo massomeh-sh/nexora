@@ -20,9 +20,13 @@ function WishlistAlert() {
     const navigate = useNavigate();
     const timerRef = useRef<ReturnType<typeof setTimeout>>(null);
 
-    const selectIsInCart = useMemo(() => makeSelectIsInCart(), []);
-    const isInCart = useAppSelector(state => selectIsInCart(state, selectedProduct?._id ?? ""));
+    const variantId = wishlistAlert?.variantId;
+    const productId = wishlistAlert?.productId;
 
+    const selectIsInCart = useMemo(() => makeSelectIsInCart(), []);
+    const isInCart = useAppSelector(state => selectIsInCart(state, productId ?? "", wishlistAlert?.variantId)
+        )
+    ;
 
     const {mutate} = useAddToCart();
 
@@ -81,23 +85,24 @@ function WishlistAlert() {
     }
 
     const handleAddToCart = () => {
+
         if (!selectedProduct) return;
-        if (isInCart) navigate("/cart");
+        if (isInCart) return navigate("/cart");
 
         if (isAuthenticated && !isInCart) {
-            mutate({productId: selectedProduct._id, quantity: 1})
+            mutate({productId: selectedProduct._id, quantity: 1, variantId})
         } else if (!isAuthenticated && !isInCart) {
-            dispatch(addLocalItem({product: selectedProduct, quantity: 1}))
+            dispatch(addLocalItem({product: selectedProduct, quantity: 1, variantId}))
         }
     }
 
-    if (!wishlistAlert) return;
+    if (!wishlistAlert) return null;
 
     return (
         <div
             onMouseEnter={handleMouseEnter}
             onMouseLeave={handleMouseLeave}
-            className={`${wishlistAlert ? "block" : "hidden"} fixed top-3 right-3 z-100 overflow-hidden bg-gray-50 text-sm lg:text-lg pt-3 rounded-2xl max-md:w-[75%] md:w-[50%] lg:w-[40%] 2xl:w-[30%] ${wishlistAlert.type === "add" ? "border-2 border-green-600" : "border-2 border-primary-red"} flex flex-col gap-3 items-start`}>
+            className={`fixed top-3 right-3 z-100 overflow-hidden bg-gray-50 text-sm lg:text-lg pt-3 rounded-2xl max-md:w-[75%] md:w-[50%] lg:w-[40%] 2xl:w-[30%] ${wishlistAlert.type === "add" ? "border-2 border-green-600" : "border-2 border-primary-red"} flex flex-col gap-3 items-start`}>
             <h3 className={`line-clamp-2 font-medium px-5 text-[16px] lg:text-[20px] transition-colors duration-300 ${wishlistAlert.type === "add" ? "text-green-600" : "text-primary-red"}`}>{wishlistAlert.type === "add" ? "محصول با موفقیت به علاقه‌مندی‌ها اضافه شد" : "محصول با موفقیت از علاقه‌مندی‌ها حذف شد"}</h3>
             <div className="flex items-center justify-center gap-4 px-5">
                 <img alt={wishlistAlert.productName}

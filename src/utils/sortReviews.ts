@@ -1,6 +1,6 @@
-import type {Product, ReviewSortTypes} from "../types/product.ts";
+import type {Product, ReviewSortType} from "../types/product.ts";
 
-export function sortReviews(sortBy: ReviewSortTypes, product: Product) {
+export function sortReviews(sortBy: ReviewSortType, product: Product) {
     return [...product.reviews].sort((a, b) => {
         if (sortBy === "newest") {
             return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();

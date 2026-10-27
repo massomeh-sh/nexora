@@ -4,7 +4,7 @@ const Cart = require('../models/Cart');
 const Product = require('../models/Product');
 
 const POPULATE_FIELDS =
-    'name images price shortDescription description discountPrice stock unit';
+    'name images price shortDescription description discountPrice stock unit variants';
 
 // ---------- Helpers ----------
 
@@ -49,7 +49,7 @@ const getCart = asyncHandler(async (req, res) => {
 // @route   POST /api/cart
 // @access  Private
 const addToCart = asyncHandler(async (req, res) => {
-    const {productId} = req.body;
+    const {productId, variantId} = req.body;
     const quantity = parseQuantity(req.body.quantity ?? 1);
 
     if (!productId || !mongoose.isValidObjectId(productId)) {
@@ -68,26 +68,48 @@ const addToCart = asyncHandler(async (req, res) => {
         throw new Error('محصول یافت نشد');
     }
 
+    // اگر محصول رنگ‌بندی دارد، رنگ الزامی و باید داخل همین محصول باشد
+    let variant = null;
+    if (product.variants.length > 0) {
+        if (!variantId || !mongoose.isValidObjectId(variantId)) {
+            res.status(400);
+            throw new Error('انتخاب رنگ الزامی است');
+        }
+        variant = product.variants.id(variantId);
+        if (!variant) {
+            res.status(400);
+            throw new Error('رنگ انتخاب‌شده معتبر نیست');
+        }
+    }
+
     let cart = await Cart.findOne({user: req.user._id});
     if (!cart) {
         cart = new Cart({user: req.user._id, items: []});
     }
 
+    // آیتم تکراری = همان محصول + همان رنگ
     const existingItem = cart.items.find(
-        (item) => item.product.toString() === String(productId)
+        (item) =>
+            item.product.toString() === String(productId) &&
+            String(item.variantId ?? '') === String(variant?._id ?? '')
     );
 
     const effectivePrice = getEffectivePrice(product);
 
-    // quantity همون مقدار نهایی آیتم در سبده (مثل رفتار قبلی)، نه مقدار اضافه‌شونده
     const newQuantity = quantity;
-    assertStock(res, product, newQuantity);
+    // موجودی رنگ انتخاب‌شده، وگرنه موجودی کل محصول
+    assertStock(res, {...product.toObject(), stock: variant ? variant.stock : product.stock}, newQuantity);
 
     if (existingItem) {
         existingItem.quantity = newQuantity;
         existingItem.price = effectivePrice;
     } else {
-        cart.items.push({product: productId, quantity, price: effectivePrice});
+        cart.items.push({
+            product: productId,
+            variantId: variant?._id ?? null,
+            quantity,
+            price: effectivePrice,
+        });
     }
 
     await cart.save();

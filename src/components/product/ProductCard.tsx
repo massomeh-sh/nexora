@@ -1,24 +1,29 @@
-import {type JSX, useMemo} from 'react';
+import {useMemo} from 'react';
 import type {Product} from "../../types/product.ts";
 import {Link} from "react-router";
-import {priceFormater} from "../../util/priceFormater.ts";
+import {priceFormater} from "@/utils/priceFormater.ts";
 import {setSelectedProduct, showModal} from "../../store/ui/uiSlice.ts";
 import {makeSelectIsInWishlist} from "../../store/wishlist/wishlistSlice.ts";
 import {useAppSelector} from "../../hooks/useAppSelector.ts";
 import useToggleWishlist from "../../hooks/useToggleWishlist.tsx";
 import {useDispatch} from "react-redux";
+import DiscountPrice from "@/UI/DiscountPrice.tsx";
+import {useSelectedVariant} from "@/hooks/useSelectedVariant.ts";
 
 interface ProductCardProps {
     // Props here
     product: Product;
 }
 
-function ProductCard({product}: ProductCardProps): JSX.Element {
+function ProductCard({product}: ProductCardProps) {
     const dispatch = useDispatch();
 
 
     const selectIsInWishList = useMemo(() => makeSelectIsInWishlist(), []);
-    // This will give us the selector we want and why we do this? Why don't we use the selector that is already in wishlistSlice and don't create different one? because we want a specific selector for each product so they don't overwrite the other selector cache!
+    // This will give us the selector we want and why we do this? Why don't we use the selector that is already in wishlistSlice and don't create different one? because we want a specific selector for each product so they don't override the other selector cache!
+
+    const {displayProduct, variantId} = useSelectedVariant(product);
+
 
     const isFavoriteProduct = useAppSelector(state => selectIsInWishList(state, product._id));
 
@@ -26,26 +31,29 @@ function ProductCard({product}: ProductCardProps): JSX.Element {
 
     const handleQuickView = async () => {
         await new Promise((resolve) => setTimeout(resolve, 300));
-        await dispatch(setSelectedProduct(product));
+        await dispatch(setSelectedProduct(displayProduct));
         dispatch(showModal("quickView"));
     }
     const handleCompare = () => {
     }
 
+    if (!displayProduct) return;
+
     return (
         <div
             className="relative min-w-[220px] max-lg:min-w-[150px] bg-lightest-gray p-4 max-lg:p-2 flex flex-col group">
-            <Link draggable={false} to={`/product/${encodeURIComponent(product.name)}/?product_id=${product._id}`}
+            <Link draggable={false}
+                  to={`/product/${encodeURIComponent(displayProduct.name)}/?product_id=${displayProduct._id}`}
                   className="absolute inset-0 z-0"/>
             <div className="relative lg:overflow-hidden pointer-events-none">
-                <img draggable={false} src={`${import.meta.env.VITE_API_BASE_URL}${product.images[0]}`}
-                     alt={product.name}
+                <img draggable={false} src={`${import.meta.env.VITE_API_BASE_URL}${displayProduct.images[0]}`}
+                     alt={displayProduct.name}
                      className="w-full h-50 max-lg:h-25 object-contain select-none"/>
-                <div dir="ltr"
-                     className="absolute max-lg:translate-y-full bottom-0 inset-x-0 bg-lightest-gray/50 translate-y-full lg:group-hover:-translate-y-1.5 transition-transform duration-500 p-3 flex justify-center items-center gap-8 text-darkest-gray cursor-default border-b border-white max-lg:border-none pointer-events-auto">
+                <div dir="rtl"
+                     className="absolute max-lg:translate-y-full bottom-0 inset-x-0 -mb-0.5 bg-lightest-gray/50 translate-y-full lg:group-hover:-translate-y-1.5 transition-transform duration-500 p-3 flex justify-center items-center gap-8 text-darkest-gray cursor-default max-lg:border-none pointer-events-auto">
                     <button aria-label="افزودن به علاقه مندی ها"
                             className={`cursor-pointer w-3 h-3 lg:w-4 lg:h-4 productCard-icon ${isFavoriteProduct ? "text-primary-red favorite" : "text-current"}`}
-                            onClick={() => handleWishlist(product, isFavoriteProduct)}>
+                            onClick={() => handleWishlist(displayProduct, isFavoriteProduct, variantId)}>
                         {isFavoriteProduct ? (
                             <svg
                                 viewBox="0 0 24 24"
@@ -85,19 +93,17 @@ function ProductCard({product}: ProductCardProps): JSX.Element {
                 </div>
             </div>
             <p className="line-clamp-2 mb-8 max-lg:mb-4 max-lg:text-sm max-lg:mt-10">
-                {product.name}
+                {displayProduct.name}
             </p>
             <div dir="ltr" className="flex flex-col mt-auto max-lg:items-end">
                 <div className="flex gap-2">
-                    <span className="text-sm inline-block text-dark-gray relative">
-                        {priceFormater(product.price)}
-                        <span className="absolute top-1/2 -translate-y-1/2 inset-x-0 h-px bg-dark-gray"/>
-                    </span>
+                    {displayProduct.discountPrice > 0 && (<DiscountPrice discount={displayProduct.price}/>)}
                     <span className="bg-primary-red text-white px-2 rounded-full max-lg:text-sm">
-                    {Math.round(product.discountPercent)}%
+                    {Math.round(displayProduct.discountPercent)}%
                 </span>
                 </div>
-                <p className="flex gap-2"><span>تومان</span><span>{priceFormater(product.discountPrice)}</span></p>
+                <p className="flex gap-2"><span>تومان</span><span>{priceFormater(displayProduct.discountPrice)}</span>
+                </p>
             </div>
         </div>);
 }

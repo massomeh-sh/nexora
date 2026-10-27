@@ -15,9 +15,10 @@ function Sidebar({children, asideName, onClose, isOpen}: SidebarProps): JSX.Elem
     const activeSidebar = useAppSelector(state => state.ui.activeSidebar);
 
     return (
-        <div className={`${isOpen ? "block" : "hidden"}`}>
-            <div onClick={onClose} className="fixed inset-0 z-100 bg-black/50"/>
-            <aside className="fixed top-0 right-0 h-screen w-1/2 max-md:w-2/3 lg:w-1/3 z-100 bg-white flex flex-col">
+        <>
+            <div onClick={onClose} className={`fixed inset-0 z-100 bg-black/50 ${isOpen ? "block" : "hidden"}`}/>
+            <aside
+                className={`fixed top-0 right-0 h-screen w-1/2 max-md:w-3/5 lg:w-1/3 z-100 bg-white flex flex-col transition-all duration-500 ${isOpen ? "translate-x-0 opacity-100" : "translate-x-full opacity-0"}`}>
                 <div
                     className="flex items-center justify-between shrink-0 bg-lightest-gray pr-6 pl-3.5 py-5 border-b border-light-gray">
                     <h2 className="text-[18px]">{asideName}</h2>
@@ -34,8 +35,9 @@ function Sidebar({children, asideName, onClose, isOpen}: SidebarProps): JSX.Elem
                 {activeSidebar === "wishlist" && (<WishlistSidebarSummary/>)}
                 {activeSidebar === "cart" && (<CartSidebarSummary/>)}
             </aside>
-        </div>
-    );
+        </>
+    )
+        ;
 }
 
 export default Sidebar;

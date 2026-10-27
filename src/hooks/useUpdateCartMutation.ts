@@ -5,6 +5,7 @@ import {queryClient} from "../routes/router.tsx";
 
 function useUpdateCartMutation() {
     return useMutation({
+        mutationKey: ["cart"],
         mutationFn: updateCartItem,
         onMutate: async ({itemId, quantity}) => {
             await queryClient.cancelQueries({queryKey: ["cart"]});

@@ -11,7 +11,7 @@ export function useSearchOverlay() {
         const handleKeyDown = (e: KeyboardEvent) => {
             const isShortcut =
                 ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "k") ||
-                e.key === "ن";
+                ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "ن");
 
             if (!isShortcut) return;
 
@@ -29,7 +29,7 @@ export function useSearchOverlay() {
         if (isSearchOpen) return;
         desktopSearchInputRef.current?.blur();
         mobileSearchInputRef.current?.blur();
-        if(mobileSearchInputRef.current) mobileSearchInputRef.current.value = "";
+        if (mobileSearchInputRef.current) mobileSearchInputRef.current.value = "";
     }, [isSearchOpen]);
 
     return {isSearchOpen, close, open, mobileSearchInputRef, desktopSearchInputRef};

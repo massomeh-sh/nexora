@@ -6,6 +6,7 @@ import {toast} from "sonner";
 export function useClearCart() {
     return useMutation({
         mutationFn: clearCart,
+        mutationKey: ["cart"],
         onError: (err) => {
             const error = err instanceof ApiError ? err.message : "خطا در حذف سبد خرید"
             toast.error(error)

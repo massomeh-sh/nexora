@@ -1,12 +1,13 @@
-import type {NavLink} from "../types/nav.types.ts";
-import homeIcon from "../assets/icons/home-smile-svgrepo-com.svg";
-import productsIcon from "../assets/icons/shop-svgrepo-com.svg";
-import blogIcon from "../assets/icons/newspaper-6-svgrepo-com.svg";
-import aboutUsIcon from "../assets/icons/about-us-svgrepo-com.svg";
+import type {NavItem} from "../types/nav.types.ts";
+import {TbHome, TbShoppingCart} from "react-icons/tb";
+import {FaBlogger} from "react-icons/fa";
+import {HiUserGroup} from "react-icons/hi";
+import {IoCall} from "react-icons/io5";
 
-export const navLinks: NavLink[] = [
-    {id: "home", label: "خانه", href: "/", icon: homeIcon},
-    {id: "products", label: "محصولات", href: "/products", icon: productsIcon},
-    {id: "blogs", label: "بلاگ ها", href: "/blogs", icon: blogIcon},
-    {id: "about", label: "درباره ما", href: "/about", icon: aboutUsIcon},
+export const navLinks: NavItem[] = [
+    {id: "home", label: "خانه", href: "/", icon: TbHome},
+    {id: "products", label: "محصولات", href: "/products", icon: TbShoppingCart},
+    {id: "blogs", label: "وبلاگ", href: "/weblog", icon: FaBlogger},
+    {id: "about", label: "درباره ما", href: "/about-us", icon: HiUserGroup},
+    {id: "contact", label: "تماس با ما", href: "/contact", icon: IoCall},
 ]

@@ -1,14 +1,19 @@
-import {type JSX, useState} from 'react';
-import type {Product, ProductInfo} from "../../types/product.ts";
+import {type JSX, useMemo, useState} from 'react';
+import type {Product, ProductInfo} from "@/types/product.ts";
 import {FaChevronLeft, FaStar} from "react-icons/fa";
 import saderatBank from "../../assets/img/لوگو-بانک-صادرات-600x600.webp";
 import meliank from "../../assets/img/bmi-ir-600x600.webp";
 import shaparat from "../../assets/img/لوگوشاپرک.webp";
 import melatBank from "../../assets/img/لوگو-بانک-ملت-600x600.webp";
-import {dateFormater} from "../../util/dateFormater.ts";
+import {dateFormater} from "@/utils/dateFormater.ts";
 import deliveryTruck from "../../assets/icons/delivery-truck-shipping-transport-svgrepo-com.svg";
 import MiniTimeLine from "../MiniDots.tsx";
 import ProductFeatures from "./ProductFeatures.tsx";
+import ProductHeartIcon from "../../UI/ProductHeartIcon.tsx";
+import {useAppSelector} from "@/hooks/useAppSelector.ts";
+import {makeSelectIsInWishlist} from "@/store/wishlist/wishlistSlice.ts";
+import useToggleWishlist from "../../hooks/useToggleWishlist.tsx";
+import ProductColors from "@/components/product/ProductColors.tsx";
 
 
 const randInt = (min: number, max: number) => {
@@ -18,17 +23,27 @@ const randInt = (min: number, max: number) => {
 interface ProductDetailsProps {
     // Props here
     product: Product;
+    selectedVariantId: string | undefined;
+    onSelectValue: (variantId: string) => void;
 }
 
-function ProductOverview({product}: ProductDetailsProps): JSX.Element {
+function ProductOverview({product, selectedVariantId, onSelectValue}: ProductDetailsProps): JSX.Element {
     const [randomNumView] = useState<number>(() => randInt(50, 20));
     const [randomNumOrder] = useState<number>(randInt(20, 1));
+    const wishlistItems = useAppSelector(state => state.wishlist.items);
 
+
+    const selectIsInWishList = useMemo(() => makeSelectIsInWishlist(), []);
+    // This will give us the selector we want and why we do this? Why don't we use the selector that is already in wishlistSlice and don't create different one? because we want a specific selector for each product so they don't overwrite the other selector cache!
+    const isFavoriteProduct = useAppSelector(state => selectIsInWishList(state, product._id));
+
+
+    const {handleWishlist} = useToggleWishlist();
 
     const productDetails: ProductInfo[] = [
         {name: "شناسه محصول", value: `(${product._id})`},
         {name: "وضعیت موجودی", value: product.inStock ? " موجود ✓" : "  ناموجود ✕"},
-        {name: "برند", value: product.brand},
+        {name: "برند", value: product.brand ? product.brand : "ناشناس"},
         {name: "دسته بندی", value: `${product.category.name}`},
         {name: "واحد", value: product.unit},
         {name: "تاریخ ثبت", value: dateFormater(product.createdAt)}
@@ -43,11 +58,23 @@ function ProductOverview({product}: ProductDetailsProps): JSX.Element {
     return (
         <div className="bg-white rounded-lg w-full px-6 py-7 grid grid-cols-2 max-2xl:grid-cols-1">
 
-            <div className="flex flex-col gap-5 pb-5 2xl:border-l 2xl:border-dashed 2xl:border-light-gray 2xl:pl-6">
+            <div
+                className="flex flex-col gap-5 pb-5 2xl:border-l 2xl:border-dashed 2xl:border-light-gray 2xl:pl-6">
                 {product.images.map((image, index) => (
-                    <img key={index} alt={image}
-                         className="bg-light-gray rounded-lg border border-light-gray object-cover"
-                         src={`${import.meta.env.VITE_API_BASE_URL}${image}`}/>
+                    <div key={index} className="relative group overflow-hidden">
+                        <img alt={image}
+                             className="bg-light-gray rounded-lg border border-light-gray object-cover"
+                             src={`${import.meta.env.VITE_API_BASE_URL}${image}`}/>
+                        {index === 0 && (
+                            <button onClick={() => {
+                                handleWishlist(product, isFavoriteProduct, selectedVariantId)
+                            }}
+                                    className="absolute top-3 right-3 border-2 border-primary-blue p-2.5 rounded-full cursor-pointer bg-white">
+                                <ProductHeartIcon wishlistItems={wishlistItems}
+                                                  isFavoriteProduct={isFavoriteProduct}/>
+                            </button>
+                        )}
+                    </div>
                 ))}
             </div>
 
@@ -101,6 +128,10 @@ function ProductOverview({product}: ProductDetailsProps): JSX.Element {
                 </ul>
 
                 <p className="text-dark-gray">{product.shortDescription}</p>
+
+                {product.variants.length > 0 &&
+                    <ProductColors product={product} onChangeValue={onSelectValue}
+                                   selectedVariantId={selectedVariantId}/>}
 
                 <h2 className='text-lg mt-5 border-t pt-5 border-dark-gray'>درباره محصول:</h2>
 

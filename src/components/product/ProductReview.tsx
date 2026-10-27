@@ -1,14 +1,14 @@
 import {type JSX, useState} from 'react';
-import type {Product, ReviewSortType, ReviewType} from "../../types/product.ts";
-import StarRating from "../../UI/StarRating.tsx";
+import type {Product, ReviewSortType, ReviewType} from "@/types/product.ts";
+import StarRating from "../../UI/ProductRating.tsx";
 import Review from "../../UI/Review.tsx";
-import {useAppSelector} from "../../hooks/useAppSelector.ts";
+import {useAppSelector} from "@/hooks/useAppSelector.ts";
 import {useNavigate} from "react-router";
 import {FaStar} from "react-icons/fa";
 import MobileReview from "../../UI/MobileReview.tsx";
 import ProductEmptyReview from "./ProductEmptyReview.tsx";
-import {sortReviews} from "../../util/sortReviews.ts";
-import {reviewSortOptions} from "../../constants/ReviewSortOptions.ts";
+import {sortReviews} from "@/utils/sortReviews.ts";
+import {reviewSortOptions} from "@/constants/ReviewSortOptions.ts";
 
 interface ProductReviewProps {
     // Props here
@@ -48,7 +48,7 @@ function ProductReview({product}: ProductReviewProps): JSX.Element {
                     <div
                         className="space-y-3 max-2xl:flex max-2xl:flex-col max-2xl:items-center max-2xl:justify-center max-2xl:border-l max-2xl:border-light-gray max-2xl:pl-4">
                         {product.rating > 0 && <p className="space-x-1">
-                            <span className="font-medium text-3xl">{product.rating}</span>
+                            <span className="font-medium text-3xl">{product.rating.toFixed(1)}</span>
                             <span className="text-dark-gray">از 5</span>
                         </p>}
                         <div className="flex gap-2 max-2xl:flex-col">

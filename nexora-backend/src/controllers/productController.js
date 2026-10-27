@@ -7,78 +7,154 @@ const Cart = require('../models/Cart');
 // آرایه‌ی لایک و دیسلایک رو به تعداد و وضعیت کاربر تبدیل می‌کنه
 // (آیدی کاربرها هیچ‌وقت به کلاینت نمیره)
 const formatReview = (review, userId) => {
-    const {likes = [], dislikes = [], ...rest} = review;
+    // user و name عمداً از خروجی جدا می‌شن و به کلاینت نمی‌رن
+    const {likes = [], dislikes = [], user, name, ...rest} = review;
     const has = (arr) => userId && arr.some((u) => u.toString() === userId.toString());
 
     return {
-        ...rest,
+        ...rest, // شامل _id, rating, comment, isAnonymous, createdAt و ...
+        authorName: review.isAnonymous ? 'کاربر ناشناس' : name,
+        isMine: Boolean(userId && user && user.toString() === userId.toString()),
         likesCount: likes.length,
         dislikesCount: dislikes.length,
         userReaction: has(likes) ? 'like' : has(dislikes) ? 'dislike' : null,
     };
 };
 
-// @desc    گرفتن لیست محصولات (با فیلتر، جستجو و صفحه‌بندی)
+// @desc    گرفتن لیست محصولات (با فیلتر، جستجو، مرتب‌سازی و صفحه‌بندی)
 // @route   GET /api/products
 // @access  Public
 const getProducts = asyncHandler(async (req, res) => {
-    const pageSize = Number(req.query.limit) || 12;
-    const page = Number(req.query.page) || 1;
+    const pageSize = Number(req.query.limit) || 8;
+    const page = Math.max(Number(req.query.page) || 1, 1);
 
-    const keyword = req.query.keyword
-        ? {$text: {$search: req.query.keyword}}
-        : {};
-
+    // ---------- دسته‌بندی ----------
     let categoryFilter = {};
 
     if (req.query.category) {
-        const rootCategory = await Category.findOne({
-            slug: req.query.category,
-        });
+        const rootCategory = await Category.findOne({slug: req.query.category});
 
+        // اگر دسته نامعتبر بود، categoryFilter خالی می‌ماند => همه محصولات
         if (rootCategory) {
-            const categoryIds = [rootCategory._id];
-
-            if (rootCategory.slug !== 'mobile') {
-                const childCategories = await Category.find({
-                    parent: rootCategory._id,
-                }).select('_id');
-
-                categoryIds.push(
-                    ...childCategories.map((category) => category._id)
-                );
-            }
+            const childCategories = await Category.find({
+                parent: rootCategory._id,
+            }).select('_id');
 
             categoryFilter = {
-                category: {$in: categoryIds},
+                category: {
+                    $in: [rootCategory._id, ...childCategories.map((c) => c._id)],
+                },
             };
         }
     }
 
-    const priceFilter = {};
-    if (req.query.minPrice) priceFilter.$gte = Number(req.query.minPrice);
-    if (req.query.maxPrice) priceFilter.$lte = Number(req.query.maxPrice);
+    // ---------- جستجو ----------
+    const keyword = req.query.keyword
+        ? {$text: {$search: req.query.keyword}}
+        : {};
 
-    const filter = {
-        isActive: true,
-        ...keyword,
-        ...categoryFilter,
-        ...(Object.keys(priceFilter).length ? {price: priceFilter} : {}),
+    // ---------- قیمت (قیمت نهایی: تخفیف اگر داشت، وگرنه قیمت اصلی) ----------
+    const effectivePriceExpr = {
+        $cond: [{$gt: ['$discountPrice', 0]}, '$discountPrice', '$price'],
     };
 
-    const count = await Product.countDocuments(filter);
-    const products = await Product.find(filter)
-        .populate('category', 'name slug')
-        .sort({createdAt: -1})
-        .limit(pageSize)
-        .skip(pageSize * (page - 1));
+    const minPrice = Number(req.query.minPrice);
+    const maxPrice = Number(req.query.maxPrice);
+    const priceExpr = [];
+
+    if (req.query.minPrice && !Number.isNaN(minPrice)) {
+        priceExpr.push({$gte: [effectivePriceExpr, minPrice]});
+    }
+    if (req.query.maxPrice && !Number.isNaN(maxPrice)) {
+        priceExpr.push({$lte: [effectivePriceExpr, maxPrice]});
+    }
+
+    // ---------- امتیاز ----------
+    const ratingFilter = {};
+    const minRating = Number(req.query.rating);
+    if (req.query.rating && !Number.isNaN(minRating) && minRating > 0) {
+        ratingFilter.rating = {$gte: Math.min(minRating, 5)};
+    }
+
+    // ---------- فیلترهای ثابت (همیشه اعمال می‌شن) ----------
+    const baseFilter = {
+        isActive: true,
+        ...categoryFilter,
+        ...ratingFilter,
+        ...(priceExpr.length ? {$expr: {$and: priceExpr}} : {}),
+    };
+
+    let filter = {...baseFilter, ...keyword};
+
+    // ---------- مرتب‌سازی ----------
+    const SORT_MAP = {
+        price_asc: {effectivePrice: 1},
+        price_desc: {effectivePrice: -1},
+        rating: {rating: -1},
+        discount: {discountPercent: -1},
+    };
+
+    // createdAt و _id برای ثبات صفحه‌بندی (وقتی مقدار sort یکسان است)
+    const sortOption = {
+        ...(SORT_MAP[req.query.sort] || {}),
+        createdAt: -1,
+        _id: -1,
+    };
+
+    // ---------- شمارش و فال‌بک ----------
+    let isFallback = false;
+    let count = await Product.countDocuments(filter);
+
+    // فقط اگر سرچ نتیجه نداشت، سرچ رو حذف کن (امتیاز، قیمت و دسته می‌مونن)
+    if (count === 0 && req.query.keyword) {
+        isFallback = true;
+        filter = baseFilter;
+        count = await Product.countDocuments(filter);
+    }
+
+    // ---------- گرفتن محصولات ----------
+    const aggregated = await Product.aggregate([
+        {$match: filter},
+        {
+            $addFields: {
+                effectivePrice: effectivePriceExpr,
+                discountPercent: {
+                    $cond: [
+                        {$and: [{$gt: ['$discountPrice', 0]}, {$gt: ['$price', 0]}]},
+                        {
+                            $round: [
+                                {
+                                    $multiply: [
+                                        {$divide: [{$subtract: ['$price', '$discountPrice']}, '$price']},
+                                        100,
+                                    ],
+                                },
+                                0,
+                            ],
+                        },
+                        0,
+                    ],
+                },
+            },
+        },
+        {$sort: sortOption},
+        {$skip: pageSize * (page - 1)},
+        {$limit: pageSize},
+        {$project: {reviews: 0}},
+    ]);
+
+    const data = await Product.populate(aggregated, {
+        path: 'category',
+        select: 'name slug',
+    });
 
     res.json({
         success: true,
-        data: products,
+        data,
         page,
         pages: Math.ceil(count / pageSize),
         total: count,
+        isFallback,
     });
 });
 
@@ -216,11 +292,19 @@ const getProductById = asyncHandler(async (req, res) => {
     res.json({success: true, data: product});
 });
 
+
 // @desc    ثبت نظر و امتیاز برای محصول
 // @route   POST /api/products/:id/reviews
 // @access  Private
 const createProductReview = asyncHandler(async (req, res) => {
-    const {rating, comment} = req.body;
+    const {rating, comment, isAnonymous} = req.body;
+
+    const numericRating = Number(rating);
+    if (!Number.isFinite(numericRating) || numericRating < 1 || numericRating > 5) {
+        res.status(400);
+        throw new Error('امتیاز باید عددی بین ۱ تا ۵ باشد');
+    }
+
     const product = await Product.findById(req.params.id);
 
     if (!product) {
@@ -238,10 +322,11 @@ const createProductReview = asyncHandler(async (req, res) => {
     }
 
     const review = {
-        user: req.user._id,
-        name: req.user.name,
-        rating: Number(rating),
+        user: req.user._id,          // همیشه ذخیره می‌شه
+        name: req.user.name,         // اسم واقعی همیشه ذخیره می‌شه
+        rating: numericRating,
         comment,
+        isAnonymous: isAnonymous === true || isAnonymous === 'true',
     };
 
     product.reviews.push(review);
@@ -253,7 +338,6 @@ const createProductReview = asyncHandler(async (req, res) => {
     await product.save();
     res.status(201).json({success: true, message: 'نظر شما ثبت شد'});
 });
-
 
 // @desc    لایک / دیسلایک یک نظر (تکرار همان دکمه، واکنش را برمی‌دارد)
 // @route   POST /api/products/:id/reviews/:reviewId/react

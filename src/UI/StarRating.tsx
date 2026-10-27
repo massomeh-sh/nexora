@@ -1,42 +1,41 @@
-import {type JSX} from 'react';
-import {FaStar} from "react-icons/fa";
+import {type JSX, useState} from 'react';
+import {FaRegStar, FaStar} from "react-icons/fa";
 
 interface StarRatingProps {
-    // Props here
-    productRating: number;
+    rating: number;
+    updateRating: (rating: number) => void;
 }
 
-function StarRating({productRating}: StarRatingProps): JSX.Element {
+
+const RATING_LABELS = ["خیلی بد", "ضعیف", "متوسط", "خوب", "عالی"] as const;
+
+function StarRating({rating, updateRating}: StarRatingProps): JSX.Element {
+    const [hover, setHover] = useState(0);
+    const activeValue = hover || rating;
 
     return (
-        <div className="flex items-center self-start justify-center gap-2">
-            {Array.from({length: 5}).map((_, index) => {
-                const starIndex = index + 1;
-
-                if (starIndex <= Math.floor(productRating)) {
+        <div className="flex flex-col gap-1 items-center justify-center">
+            <ul onMouseLeave={() => setHover(0)}
+                className="flex items-center gap-2">
+                {Array.from({length: 5}).map((_, index) => {
+                    const value = index + 1;
+                    const Icon = value <= activeValue ? FaStar : FaRegStar;
                     return (
-                        <FaStar key={starIndex} className="text-amber-400"/>
-                    )
-                }
-
-                if (starIndex === Math.ceil(productRating) && productRating % 1 !== 0) {
-                    return (
-                        <div key={starIndex} className="relative">
-                            <FaStar className="text-gray-300"/>
-                            <div style={{width: `${(productRating % 1) * 100}%`}}
-                                 className="absolute inset-0 overflow-hidden">
-                                <FaStar className="text-amber-400"/>
-                            </div>
-                        </div>
-                    )
-                }
-
-                return (
-                    <FaStar key={starIndex} className="text-gray-300"/>
-                )
-            })}
+                        <li key={value}>
+                            <button onClick={() => updateRating(value)} onMouseEnter={() => setHover(value)}
+                                    type="button" aria-label={`${value}ستاره `}>
+                                <Icon className="text-yellow-300"
+                                      size={25}
+                                />
+                            </button>
+                        </li>
+                    );
+                })}
+            </ul>
+            <p className="text-sm text-dark-gray">{activeValue ? RATING_LABELS[activeValue - 1] : "برای امتیاز دادن ستاره ها را لمس کنید"}</p>
         </div>
-    );
+    )
+        ;
 }
 
 export default StarRating;

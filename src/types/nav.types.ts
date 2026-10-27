@@ -1,10 +1,10 @@
 import type {ComponentType, SVGProps} from "react";
 
-export interface NavLink {
+export interface NavItem {
     id: string;
     label: string;
     href: string;
-    icon: string;
+    icon: ComponentType<SVGProps<SVGSVGElement>>;
 }
 
 interface CategoryChildren {

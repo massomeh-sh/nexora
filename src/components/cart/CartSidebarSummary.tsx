@@ -1,6 +1,6 @@
 import {useAppSelector} from "../../hooks/useAppSelector.ts";
 import {selectedCartSubTotal} from "../../store/cart/cartSlice.ts";
-import {priceFormater} from "../../util/priceFormater.ts";
+import {priceFormater} from "@/utils/priceFormater.ts";
 import {Link, useNavigate} from "react-router";
 import {useDispatch} from "react-redux";
 import {hideCartSidebar} from "../../store/ui/uiSlice.ts";

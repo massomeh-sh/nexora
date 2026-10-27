@@ -1,4 +1,4 @@
-import {type JSX} from 'react';
+import {type JSX, useEffect, useId, useRef} from 'react';
 
 interface UpdateQuantityWithDeleteBtnProps {
     // Props here
@@ -21,21 +21,41 @@ function UpdateQuantityWithDeleteBtn({
                                          onRemoveItem,
                                      }: UpdateQuantityWithDeleteBtnProps): JSX.Element {
 
+    const inputId = useId();
+    const timerRef = useRef<ReturnType<typeof setTimeout>>(0);
+
+
+    useEffect(() => {
+        return () => {
+            clearTimeout(timerRef.current);
+        }
+    }, [])
+
     return (
         <div
             className={`mr-auto bg-lightest-gray px-4 py-2 rounded-sm flex justify-center items-center text-sm relative z-10 h-6 lg:h-8 gap-3 ${className ?? ""}`}>
             <button onClick={onIncreaseQuantity}
                     className="cursor-pointer flex items-center justify-center active:scale-105 hover:scale-125">+
             </button>
-            <input style={{width: "3ch"}} type="text" inputMode="numeric" value={quantity} onChange={(e) => {
+            <input aria-label="تعداد" id={inputId} style={{width: "3ch"}} type="text" inputMode="numeric"
+                   value={quantity === 0 ? "" : quantity} onChange={(e) => {
                 const value = e.target.value.replace(/\D/g, "");
                 if (value.length > 2) return;
+                onQuantityChange(value === "" ? 0 : +value)
 
-                const newQuantity = value === "" ? 1 : +value;
-                onQuantityChange(newQuantity);
-                onUpdateCartQuantity(newQuantity);
+                clearTimeout(timerRef.current);
+                timerRef.current = setTimeout(() => {
+
+                    if (value !== "" && +value >= 1) onUpdateCartQuantity(+value);
+                }, 500)
+
             }
-            } className="text-center w-[3ch]"/>
+            } onBlur={() => {
+                if (quantity < 1) {
+                    onQuantityChange(1);
+                    onUpdateCartQuantity(1);
+                }
+            }} className="text-center w-[3ch]"/>
             <div>{quantity === 1 ?
                 <button onClick={onRemoveItem}
                         className="cursor-pointer flex items-center justify-center active:scale-125 hover:scale-125">

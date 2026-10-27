@@ -1,20 +1,32 @@
-export interface Category {
-    _id: string;
-    name: string;
-    slug: string;
-}
-
 export interface ReviewType {
+    authorName: string;
     comment: string;
     createdAt: string;
-    name: string;
     rating: number;
     dislikesCount: number;
     likesCount: number;
     updatedAt: string;
-    user: string;
     _id: string;
     userReaction: string;
+}
+
+export interface Category {
+    created_at: string;
+    image: string;
+    name: string;
+    parent: string;
+    slug: string;
+    updatedAt: string;
+    _id: string;
+}
+
+
+export interface ProductVariant {
+    colorHex: string;
+    colorName: string;
+    images: string[];
+    stock: number;
+    _id: string;
 }
 
 export interface Product {
@@ -36,6 +48,8 @@ export interface Product {
     unit: string;
     quantity: number;
     createdAt: string;
+    variants: ProductVariant[];
+    selectedVariantId: string;
 }
 
 
@@ -69,11 +83,20 @@ export interface GetProductByIdResponse {
     data: Product;
 }
 
+
+export interface BreadCrumbPath {
+    name: string;
+    slug: string;
+}
+
 export interface GetAllProductsResponse {
     success: boolean;
     data: Product[];
+    categoryPath: BreadCrumbPath[];
+    page: number;
     pages: number;
     total: number;
+    isFallback: boolean;
 }
 
 export interface ReactToProductCommentProps {
@@ -94,4 +117,43 @@ export interface ReviewSortOption {
     id: number;
     title: string;
     target: ReviewSortType;
+}
+
+
+export interface ProductsQuery {
+    keyword: string;
+    minPrice: string;
+    maxPrice: string;
+    rating: string;
+    category: string;
+    page: string;
+    sort: string;
+    limit: string;
+}
+
+
+export interface CategoriesData {
+    name: string;
+    parent: string | null;
+    slug: string;
+    _id: string;
+}
+
+export interface GetCategoriesResponse {
+    success: boolean;
+    data: CategoriesData[];
+    count: number;
+}
+
+export interface CreateProductReviewProps {
+    productId: string;
+    rating: number;
+    comment: string;
+    isAnonymous: boolean;
+}
+
+
+export interface CreateProductReviewResponse {
+    success: boolean;
+    message: string;
 }

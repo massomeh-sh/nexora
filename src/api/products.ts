@@ -1,6 +1,7 @@
 import type {
+    CreateProductReviewProps, CreateProductReviewResponse,
     GetAllProductsResponse,
-    GetDealProductsResponse, GetProductByIdResponse,
+    GetDealProductsResponse, GetProductByIdResponse, ProductsQuery,
     ReactToCommentResponse,
     ReactToProductCommentProps,
 } from "../types/product.ts";
@@ -11,20 +12,51 @@ export async function getDeals(limit = 10): Promise<GetDealProductsResponse> {
 }
 
 
-export async function getProducts(query: string | null, category: string | null): Promise<GetAllProductsResponse> {
+export async function getProducts({
+                                      keyword,
+                                      category,
+                                      rating,
+                                      maxPrice,
+                                      minPrice,
+                                      page,
+                                      sort,
+                                      limit
+                                  }: ProductsQuery): Promise<GetAllProductsResponse> {
     const params = new URLSearchParams();
 
-    if (query) {
-        params.set("keyword", query);
+    if (keyword) {
+        params.set("keyword", keyword);
     }
 
     if (category) {
         params.set("category", category);
     }
 
-    const url = params.size ? `/api/products?${params.toString()}` : "/api/products";
+    if (rating) {
+        params.set("rating", rating);
+    }
 
-    console.log("Products request:", url);
+    if (maxPrice) {
+        params.set("maxPrice", maxPrice);
+    }
+
+    if (minPrice) {
+        params.set("minPrice", minPrice);
+    }
+
+    if (page) {
+        params.set("page", page);
+    }
+
+    if (sort) {
+        params.set("sort", sort);
+    }
+
+    if (limit) {
+        params.set("limit", limit)
+    }
+
+    const url = params.size ? `/api/products?${params.toString()}` : "/api/products";
     return apiFetch(url);
 }
 
@@ -48,4 +80,17 @@ export async function reactToProductComment({
             method: "POST",
             body: JSON.stringify({type}),
         });
+}
+
+
+export async function createProductReview({
+                                              productId,
+                                              rating,
+                                              comment,
+                                              isAnonymous
+                                          }: CreateProductReviewProps): Promise<CreateProductReviewResponse> {
+    return apiFetch(`/api/products/${productId}/reviews`, {
+        method: "POST",
+        body: JSON.stringify({rating, comment, isAnonymous}),
+    })
 }

@@ -1,14 +1,18 @@
-import {type JSX, useState} from 'react';
+import {type JSX, useEffect, useRef, useState} from 'react';
 import nexoraImage from "../assets/img/nexoraLogoImg.png";
 import Navbar from "./Navbar.tsx";
-import SearchInput from "./search/SearchInput.tsx";
+import DesktopSearch from "./search/DesktopSearch.tsx";
 import {Link} from "react-router";
 import TopBanner from "./TopBanner.tsx";
 import MobileSearchOverlay from "./search/MobileSearchOverlay.tsx";
 import {useAppSelector} from "../hooks/useAppSelector.ts";
-import {showCartSidebar, showWishlistSidebar} from "../store/ui/uiSlice.ts";
+import {showCartSidebar, showMenuSidebar, showWishlistSidebar} from "../store/ui/uiSlice.ts";
 import {useDispatch} from "react-redux";
 import {useSearchOverlay} from "../hooks/useSearchOverlay.ts";
+import {TbUser} from "react-icons/tb";
+import {RiShoppingBasketLine} from "react-icons/ri";
+import {HiOutlineHeart} from "react-icons/hi";
+
 
 function Header(): JSX.Element {
     const [isLoginDropdownOpen, setIsLoginDropdownOpen] = useState(false);
@@ -20,17 +24,45 @@ function Header(): JSX.Element {
     const cartItems = isAuthenticated ? cart?.cart?.items : cart.localItems;
     const {mobileSearchInputRef, desktopSearchInputRef, isSearchOpen, close, open} = useSearchOverlay();
 
+    const headerRef = useRef<HTMLDivElement>(null);
+
+    useEffect(() => {
+        const header = headerRef.current;
+
+        if (!header) return;
+
+
+        const updateHeaderHeight = () => {
+            const height = header.getBoundingClientRect().height;
+
+            document.documentElement.style.setProperty("--header-height", `${height}px`);
+        }
+
+        updateHeaderHeight();
+
+        const observer = new ResizeObserver(() => {
+            updateHeaderHeight();
+        });
+
+        observer.observe(header);
+
+        return () => {
+            observer.disconnect();
+        }
+    }, [])
+
     return (
         <>
-            <div className="w-full flex flex-col sticky top-0 z-100 max-lg:border-b max-lg:border-gray-300">
+            <div ref={headerRef} className="w-full flex flex-col sticky top-0 z-100">
                 <TopBanner/>
                 <header
                     className="flex items-center justify-between bg-primary-blue max-lg:px-6 max-lg:justify-start px-32 z-50">
                     <div className="flex justify-between items-center gap-5 max-lg:gap-0 w-1/2 max-lg:w-full">
-                        <button className="lg:hidden cursor-pointer text-white">
+                        <button onClick={() => dispatch(showMenuSidebar())}
+                                className="lg:hidden cursor-pointer text-white">
                             <svg stroke="currentColor" fill="currentColor" strokeWidth="0" viewBox="0 0 24 24"
-                                 height="26"
-                                 width="26" xmlns="http://www.w3.org/2000/svg">
+                                 height="28"
+                                 width="28" xmlns="http://www.w3.org/2000/svg">
                                 <path d="M3 4H21V6H3V4ZM3 11H21V13H3V11ZM3 18H21V20H3V18Z"></path>
                             </svg>
                         </button>
@@ -45,7 +77,7 @@ function Header(): JSX.Element {
                             }} className="cursor-pointer">
                                 <svg xmlns="http://www.w3.org/2000/svg"
                                      className="text-white"
-                                     width="26" height="26"
+                                     width="22" height="22"
                                      fill="none" viewBox="0 0 24 24">
                                     <path
                                         d="M15.7955 15.8111L21 21M18 10.5C18 14.6421 14.6421 18 10.5 18C6.35786 18 3 14.6421 3 10.5C3 6.35786 6.35786 3 10.5 3C14.6421 3 18 6.35786 18 10.5Z"
@@ -54,8 +86,8 @@ function Header(): JSX.Element {
                                 </svg>
                             </button>
                         </div>
-                        <SearchInput inputRef={desktopSearchInputRef} isSearchOpen={isSearchOpen} close={close}
-                                     open={open}/>
+                        <DesktopSearch inputRef={desktopSearchInputRef} isSearchOpen={isSearchOpen} close={close}
+                                       open={open}/>
                     </div>
                     <div className="flex gap-6 max-lg:hidden">
                         <div onMouseEnter={() => setIsLoginDropdownOpen(true)}
@@ -63,15 +95,7 @@ function Header(): JSX.Element {
                             <Link to={`${isAuthenticated ? "dashboard" : "auth"}`}
                                   aria-label="حساب کاربری"
                                   className="cursor-pointer">
-                                <svg aria-hidden={true} className="w-7 h-7 text-white"
-                                     xmlns="http://www.w3.org/2000/svg"
-                                     width="24" height="24"
-                                     fill="none" viewBox="0 0 24 24">
-                                    <path
-                                        d="M5 21C5 17.134 8.13401 14 12 14C15.866 14 19 17.134 19 21M16 7C16 9.20914 14.2091 11 12 11C9.79086 11 8 9.20914 8 7C8 4.79086 9.79086 3 12 3C14.2091 3 16 4.79086 16 7Z"
-                                        stroke="currentColor" strokeWidth="2" strokeLinecap="round"
-                                        strokeLinejoin="round"/>
-                                </svg>
+                                <TbUser className="text-3xl text-white"/>
                             </Link>
                             {isLoginDropdownOpen && !isAuthenticated && (
                                 // You can also use border to create the triangle, or use svg to round it's top, up to you!
@@ -103,12 +127,7 @@ function Header(): JSX.Element {
                         </div>
                         <button onClick={() => dispatch(showWishlistSidebar())} type="button" aria-label="علاقه مندی ها"
                                 className="cursor-pointer relative">
-                            <svg aria-hidden={true} className="w-7 h-7  text-white"
-                                 xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none"
-                                 viewBox="0 0 24 24">
-                                <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"
-                                      d="M12.01 6.001C6.5 1 1 8 5.782 13.001L12.011 20l6.23-7C23 8 17.5 1 12.01 6.002Z"/>
-                            </svg>
+                            <HiOutlineHeart className="text-3xl text-white"/>
                             <span
                                 className={`bg-primary-red w-4.5 h-4 leading-none text-white absolute right-[-3px] bottom-[-3px] flex items-center justify-center rounded-sm ${wishlistItems?.length === 0 ? "hidden" : "block"}`}>{wishlistItems?.length}</span>
                         </button>
@@ -116,12 +135,7 @@ function Header(): JSX.Element {
                             dispatch(showCartSidebar())
                         }} aria-label="سبد خرید"
                                 className="cursor-pointer relative">
-                            <svg className="w-7 h-7 text-white" aria-hidden="true"
-                                 xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none"
-                                 viewBox="0 0 24 24">
-                                <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"
-                                      d="M9 10V6a3 3 0 0 1 3-3v0a3 3 0 0 1 3 3v4m3-2 .917 11.923A1 1 0 0 1 17.92 21H6.08a1 1 0 0 1-.997-1.077L6 8h12Z"/>
-                            </svg>
+                            <RiShoppingBasketLine className="text-3xl text-white"/>
                             <span aria-hidden={true}
                                   className={`bg-primary-red w-4.5 h-4 text-white absolute right-[-3px] bottom-[-3px] flex items-center justify-center rounded-sm leading-none ${cartItems?.length === 0 ? "hidden" : "block"}`}>{cartItems?.length}</span>
                         </button>

@@ -42,9 +42,10 @@ function MobileSearchOverlay({closeSearch, inputRef}: MobileSearchOverlayProps):
             params.set("category", selectedCategory?.slug);
         }
         setSearchText("")
-        navigate(`/search?${params.toString()}`);
+        navigate(`/products?${params.toString()}`);
         closeSearch();
     }
+
 
     return (
         <div className="px-10 py-5 flex flex-col gap-5">
@@ -89,7 +90,8 @@ function MobileSearchOverlay({closeSearch, inputRef}: MobileSearchOverlayProps):
                             </li>)}
                         </ul>}
                 </div>
-                <input ref={inputRef} value={searchText} onChange={(e) => setSearchText(e.target.value)}
+                <input name="mobileSearchInput" id="mobileSearchInput" ref={inputRef} value={searchText}
+                       onChange={(e) => setSearchText(e.target.value)}
                        autoComplete="off" type="text" placeholder="جستجو در همه کالاها..."
                        className="bg-lightest-gray flex-1 rounded-l-sm outline-none pr-3"/>
                 <button type="button" onClick={() => {
@@ -107,9 +109,9 @@ function MobileSearchOverlay({closeSearch, inputRef}: MobileSearchOverlayProps):
 
 
             <div className="border border-light-gray p-3 flex flex-col">
-                <TopSearches/>
+                <TopSearches closeSearch={closeSearch}/>
                 <div className="bg-light-gray h-[1px] w-full my-4"/>
-                <Link to="/search?category=fashion-women" onClick={closeSearch} className="block mt-3 w-full">
+                <Link to="/products?category=پوشاک زنانه" onClick={closeSearch} className="block mt-3 w-full">
                     <img src={searchBanner} alt="بنر تبلیغاتی"
                          className="object-cover w-full h-auto 2xl:h-40 rounded-sm"/>
                 </Link>

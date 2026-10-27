@@ -1,4 +1,4 @@
-import {type JSX} from 'react';
+import {type JSX, useEffect, useState} from 'react';
 
 interface SetQuantityProps {
     className?: string;
@@ -7,6 +7,12 @@ interface SetQuantityProps {
 }
 
 function UpdateQuantity({className = "py-2", quantity, onQuantityChange}: SetQuantityProps): JSX.Element {
+    const [text, setText] = useState(String(quantity));
+
+    useEffect(() => {
+        setText(String(quantity));
+    }, [quantity]);
+
     return (
         <div
             className={`bg-light-gray flex justify-between items-center px-2 rounded-sm ${className}`}>
@@ -15,20 +21,17 @@ function UpdateQuantity({className = "py-2", quantity, onQuantityChange}: SetQua
                 className="bg-white px-3 py-0.5 hover:bg-primary-blue hover:text-white rounded-sm cursor-pointer transition-colors duration-300">-
             </button>
 
-            <input type="text" inputMode="numeric" value={quantity} onChange={(e) => {
+            <input type="text" inputMode="numeric" value={text} onChange={(e) => {
                 const value = e.target.value.replace(/\D/g, "");
-                if (value === "" || +value <= 0 || +value.length > 2) {
-                    onQuantityChange(1)
-                    return;
-                }
+                if (value.length > 2) return;
 
-                onQuantityChange(+value)
-            }} onBlur={() => {
-                const value = Number(quantity);
-                if (!value || value < 1 || value.toString().length > 2) {
-                    onQuantityChange(1);
-                    return;
+                setText(value);
+
+                if (value !== "" && +value >= 1) {
+                    onQuantityChange(+value)
                 }
+            }} onBlur={() => {
+                setText(String(quantity))
             }}
                    className="text-sm w-12 text-center outline-none"/>
             <button

@@ -5,11 +5,13 @@ export interface CartItem {
     product: Product;
     quantity: number;
     price: number;
+    variantId?: string | undefined;
 }
 
 export interface LocalCartItem {
     product: Product;
     quantity: number;
+    variantId?: string | undefined;
 }
 
 export interface Cart {
@@ -27,6 +29,7 @@ export interface CartResponse {
 export interface AddToCartParams {
     productId: string;
     quantity: number;
+    variantId?: string | undefined;
 }
 
 export interface SelectableCartItem {

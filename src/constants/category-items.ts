@@ -8,11 +8,11 @@ import petShop from "../assets/img/petshop.png";
 import beauty from "../assets/img/beauty.png";
 
 export const categoryItems: CategoryItem[] = [
-    {imageSrc: laptop, title: "لپ تاپ", categorySlug: "laptop"},
-    {imageSrc: mobile, title: "موبایل", categorySlug: "mobile"},
-    {imageSrc: lavazemeBarghi, title: "لوازم خانگی برقی", categorySlug: "appliances"},
-    {imageSrc: lavazemeKhane, title: "خانه و آشپزخانه", categorySlug: "lavazem-khane"},
-    {imageSrc: fashion, title: "مد و پوشاک", categorySlug: "fashion"},
-    {imageSrc: beauty, title: "آرایشی بهداشتی", categorySlug: "behdashti-arayeshi"},
-    {imageSrc: petShop, title: "پت شاپ", categorySlug: "petshop"},
+    {imageSrc: laptop, title: "لپ تاپ", categorySlug: "لپ-تاپ"},
+    {imageSrc: mobile, title: "موبایل", categorySlug: "گوشی-موبایل"},
+    {imageSrc: lavazemeBarghi, title: "لوازم خانگی برقی", categorySlug: "لوازم-خانگی-برقی"},
+    {imageSrc: lavazemeKhane, title: "خانه و آشپزخانه", categorySlug: "خانه-آشپزخانه"},
+    {imageSrc: fashion, title: "مد و پوشاک", categorySlug: "مد-پوشاک"},
+    {imageSrc: beauty, title: "آرایشی بهداشتی", categorySlug: "بهداشتی-آرایشی"},
+    {imageSrc: petShop, title: "پت شاپ", categorySlug: "لوازم-حیوانات-خانگی"},
 ]
