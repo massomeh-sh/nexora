@@ -38,7 +38,6 @@ function StandPoint({close}: StandPointProps) {
             close();
         },
         onSuccess: (data) => {
-            console.log(data);
             toast.success(data.message);
             close();
         }

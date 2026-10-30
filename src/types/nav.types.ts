@@ -16,6 +16,7 @@ interface CategoryChildren {
 export interface CategoriesList {
     id: number;
     name: string;
+    title: string;
     slug: string;
     icon: ComponentType<SVGProps<SVGSVGElement>>;
     children: CategoryChildren[];

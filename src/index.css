@@ -26,6 +26,10 @@
     }
 }
 
+@utility filter-input {
+    @apply block w-full px-3 py-2.5 border border-light-gray text-sm rounded-lg focus:border-primary-blue focus:ring focus:ring-primary-blue outline-none shadow-xs;
+}
+
 @utility offer-timer {
     @apply bg-light-gray px-1 rounded-lg text-black;
 }

@@ -17,6 +17,8 @@ import {MutationCache, QueryClient} from "@tanstack/react-query";
 import Loading from "../UI/Loading.tsx";
 import ProductsPage from "../pages/Products.tsx";
 import {searchLoader} from "../loaders/searchLoader.ts";
+import MobileOnlyRoute from "@/pages/MobileOnlyRoute.tsx";
+import CategoriesPage from "@/pages/Categories.tsx";
 
 
 export const queryClient = new QueryClient({
@@ -36,6 +38,11 @@ const router = createBrowserRouter([
     {
         element: <LayoutPage/>, children: [
             {path: "/", element: <HomePage/>},
+            {
+                element: <MobileOnlyRoute/>, children: [
+                    {path: "/categories", element: <CategoriesPage/>}
+                ]
+            },
             {
                 path: "dashboard", element: <DashboardPage/>
             },

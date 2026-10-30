@@ -19,7 +19,7 @@ function MobileNavigation(): JSX.Element {
 
 
     return (
-        <nav className="fixed z-50 bottom-0 bg-white w-full lg:hidden border-t-2 border-light-gray">
+        <nav className="fixed z-[100] bottom-0 bg-white h-19 w-full lg:hidden border-t-2 border-light-gray">
             <ul className="flex justify-between items-center w-full text-dark-gray px-1 text-sm">
                 {mobileNavLinks.map((l) => {
                     const Icon = l.icon;

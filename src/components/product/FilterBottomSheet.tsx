@@ -4,7 +4,6 @@ import BottomSheetHeader from "@/UI/BottomSheetHeader.tsx";
 import {useSheetRoute} from "@/hooks/useSheetRoute.ts";
 import {useLockBodyScroll} from "@/hooks/useLockBodyScroll.ts";
 import {useSearchParams} from "react-router";
-import {priceFormater} from "@/utils/priceFormater.ts";
 
 const MAX_PRICE = 10_000_000;
 
@@ -23,8 +22,8 @@ const DEFAULT_FILTERS: FilterDraft = {
 
 const SUGGESTED_PRICES = [
     {label: "زیر 500 هزار تومان", min: 0, max: 500_000},
-    {label: "تا 2500000 هزار", min: 500_000, max: 2_500_000},
-    {label: "بالای 2 میلیون", min: 2_000_000, max: MAX_PRICE},
+    {label: "تا 2.5 میلیون", min: 500_000, max: 2_500_000},
+    {label: "بالای 2.5 میلیون", min: 2_500_000, max: MAX_PRICE},
 ]
 
 
@@ -72,6 +71,8 @@ function FilterBottomSheet(): JSX.Element {
 
         if (filters.maxPrice) {
             params.set("maxPrice", String(filters.maxPrice))
+        } else {
+            params.delete("maxPrice");
         }
 
         params.delete("page");
@@ -80,7 +81,7 @@ function FilterBottomSheet(): JSX.Element {
 
 
     return (
-        <BottomSheet close={close} isOpen={isOpen}
+        <BottomSheet close={close} isOpen={isOpen} collapsed={0.6}
                      header={<BottomSheetHeader close={close} title="فیلتر ها"/>}>
             <div className="px-4 flex flex-col">
 
@@ -110,19 +111,26 @@ function FilterBottomSheet(): JSX.Element {
 
                 <div className="py-3 border-b border-light-gray flex flex-col gap-4">
                     <h2 className="font-semibold">محدوده قیمت</h2>
-                    <div className="flex items-center justify-center gap-3 text-sm">
-                        <button type="button"
-                                className="border border-light-gray cursor-pointer w-full rounded-lg flex items-center justify-between px-3 py-1">
-                            <span>از</span>
-                            <span>{priceFormater(filters.minPrice)}</span>
-                        </button>
-                        <button type="button"
-                                className="border border-light-gray cursor-pointer w-full rounded-lg flex items-center justify-between px-3 py-1">
-                            <span>تا</span>
-                            <span>{priceFormater(filters.maxPrice)}</span>
-                        </button>
-                    </div>
 
+                    <div className="flex items-center gap-2">
+
+                        <label htmlFor="from-x" className="text-dark-gray">از:</label>
+                        <input id="from-x" type="number" min={0} max={filters.maxPrice} value={filters.minPrice}
+                               onChange={(e) => setFilters((pre) => ({
+                                   ...pre,
+                                   minPrice: Math.min(Number(e.target.value), MAX_PRICE)
+                               }))}
+                               className="filter-input" required/>
+
+                        <label htmlFor="to-x" className="text-dark-gray">تا:</label>
+                        <input id="to-x" type="number" min={filters.minPrice} max={MAX_PRICE} value={filters.maxPrice}
+                               onChange={(e) => setFilters((pre) => ({
+                                   ...pre,
+                                   maxPrice: Math.min(Number(e.target.value), MAX_PRICE)
+                               }))}
+                               className="filter-input" required/>
+
+                    </div>
 
                     <div dir="rtl" className="relative mx-2 mt-5 h-6">
                         <div className="absolute top-1/2 h-1 w-full -translate-y-1/2 rounded-full bg-light-gray"/>
@@ -142,7 +150,7 @@ function FilterBottomSheet(): JSX.Element {
 
                     <ul className="flex items-center gap-2 text-sm">
                         {SUGGESTED_PRICES.map((p) => (
-                            <button key={p.label} onClick={() => {
+                            <button type="button" key={p.label} onClick={() => {
                                 setFilters((pre) => ({...pre, minPrice: p.min, maxPrice: p.max}))
                             }}
                                     className="border border-light-gray p-2 rounded-full cursor-pointer hover:bg-lightest-gray hover:border-dark-gray transition-colors duration-300">{p.label}</button>

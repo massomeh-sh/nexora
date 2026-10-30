@@ -6,12 +6,11 @@ interface BottomSheetProps {
     children: React.ReactNode;
     header: React.ReactNode;
     isOpen: boolean;
+    collapsed?: number;
     close: () => void;
 }
 
-const COLLAPSED = 0.4;
-
-function BottomSheet({children, header, isOpen, close}: BottomSheetProps): JSX.Element {
+function BottomSheet({children, header, isOpen, close, collapsed = 0.4}: BottomSheetProps): JSX.Element {
     const [expanded, setExpanded] = useState(false);
     const [dragHeight, setDragHeight] = useState<number | null>(null)
     const startY = useRef(0);
@@ -65,9 +64,9 @@ function BottomSheet({children, header, isOpen, close}: BottomSheetProps): JSX.E
         setDragHeight(null);
 
 
-        if (ratio < COLLAPSED * 0.7) {
+        if (ratio < collapsed * 0.7) {
             close();
-        } else if (ratio > (COLLAPSED + 1) / 2) {
+        } else if (ratio > (collapsed + 1) / 2) {
             setExpanded(true);
         } else {
             setExpanded(false);
@@ -91,7 +90,7 @@ function BottomSheet({children, header, isOpen, close}: BottomSheetProps): JSX.E
             <div
                 ref={sheetRef}
                 style={isDragging ? {height: dragHeight} : undefined}
-                className={`bg-white fixed inset-x-0 bottom-0 z-[103] flex flex-col ${animationClass} ${isOpen ? "translate-y-0 pointer-events-auto" : "translate-y-full pointer-events-none"} ${!isDragging && (expanded ? "h-dvh" : "h-[40dvh]")} ${expanded && !isDragging ? "rounded-none" : "rounded-t-2xl"}`}>
+                className={`bg-white fixed inset-x-0 bottom-0 z-[103] flex flex-col ${animationClass} ${isOpen ? "translate-y-0 pointer-events-auto" : "translate-y-full pointer-events-none"} ${!isDragging && (expanded ? "h-dvh" : `h-[${collapsed * 100}dvh]`)} ${expanded && !isDragging ? "rounded-none" : "rounded-t-2xl"}`}>
                 <div onPointerDown={onPointerDown} onPointerMove={onPointerMove} onPointerUp={onPointerUp}
                      onLostPointerCapture={onPointerCancel}
                      onPointerCancel={onPointerCancel}

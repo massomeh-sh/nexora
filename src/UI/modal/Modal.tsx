@@ -27,14 +27,12 @@ function Modal({open, close, children, className}: ModalProps): JSX.Element {
     const closeModal = (e: React.MouseEvent<HTMLDialogElement>) => {
         if (!modalRef.current) return;
         if (e.target === modalRef.current) {
-            console.log("close modal");
             modalRef.current?.close();
             close?.();
         } else return;
     }
 
     const handleCancel = (e: React.MouseEvent<HTMLDialogElement>) => {
-        console.log("cancel");
         e.preventDefault();
         close?.();
     }

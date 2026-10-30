@@ -22,8 +22,6 @@ function ProductPage() {
     const categories = categoriesResponse?.data ?? [];
     const {variantId, setVariantId, displayProduct} = useSelectedVariant(product);
 
-    console.log(displayProduct);
-
 
     if (!product || !displayProduct) return null;
     const shortName = product.name.length > 20 ? product.name.slice(0, 20) + "..." : product.name;
@@ -36,9 +34,6 @@ function ProductPage() {
         })),
         {label: shortName}
     ]
-
-
-    console.log(displayProduct);
 
     return (
         <section className="flex flex-col max-md:-mt-6">

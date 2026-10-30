@@ -9,14 +9,14 @@ import PetFoodIcon from "../assets/icons/pet-food-paw-svgrepo-com.svg?react";
 
 export const categories: CategoriesList[] = [
     {
-        id: 1, name: "موبایل", icon: MobileIcon, slug: "موبایل", children: [
+        id: 1, name: "موبایل", title: "موبایل", icon: MobileIcon, slug: "موبایل", children: [
             {id: 12, title: "گوشی موبایل", slug: "گوشی-موبایل"},
             {id: 13, title: "لوازم جانبی موبایل", slug: "لوازم-جانبی-موبایل"},
             {id: 14, title: "قاب و محافظ", slug: "قاب-محافظ-موبایل"},
         ]
     },
     {
-        id: 2, name: "لپ تاپ", icon: LaptopIcon, slug: "لپ-تاپ", children: [
+        id: 2, name: "لپ تاپ", title: "لپ تاپ", icon: LaptopIcon, slug: "لپ-تاپ", children: [
             {id: 22, title: "لپ‌تاپ اداری", slug: "لپ-تاپ-اداری"},
             {id: 23, title: "لپ‌تاپ گیمینگ", slug: "لپ-تاپ-گیمینگ"},
             {id: 24, title: "کیف و کوله لپ‌تاپ", slug: "کیف-کوله-لپ-تاپ"},
@@ -25,6 +25,7 @@ export const categories: CategoriesList[] = [
     {
         id: 3,
         name: "خانه-آشپزخانه",
+        title: "خانه-آشپزخانه",
         icon: SofaIcon,
         slug: "خانه-آشپزخانه",
         children: [
@@ -35,6 +36,7 @@ export const categories: CategoriesList[] = [
     {
         id: 4,
         name: "لوازم خانگی برقی",
+        title: "لوازم خانگی برقی",
         icon: FridgeIcon,
         slug: "لوازم-خانگی-برقی",
         children: [
@@ -45,6 +47,7 @@ export const categories: CategoriesList[] = [
     {
         id: 5,
         name: "آرایشی بهداشتی",
+        title: "بهداشتی-آرایشی",
         icon: MakeupIcon,
         slug: "بهداشتی-آرایشی",
         children: [
@@ -53,13 +56,13 @@ export const categories: CategoriesList[] = [
         ]
     },
     {
-        id: 6, name: "مد و پوشاک", icon: ClothesIcon, slug: "مد-پوشاک", children: [
+        id: 6, name: "مد و پوشاک", icon: ClothesIcon, title: "مد-پوشاک", slug: "مد-پوشاک", children: [
             {id: 61, title: "پوشاک مردانه", slug: "پوشاک-مردانه"},
             {id: 62, title: "پوشاک زنانه", slug: "پوشاک-زنانه"},
         ]
     },
     {
-        id: 7, name: "پت شاپ", icon: PetFoodIcon, slug: "لوازم-حیوانات-خانگی", children: [
+        id: 7, name: "پت شاپ", icon: PetFoodIcon, title: "لوازم-حیوانات-خانگی", slug: "لوازم-حیوانات-خانگی", children: [
             {id: 71, title: "غذای حیوانات خانگی", slug: "غذای-حیوانات-خانگی"},
             {id: 72, title: "لوازم جانبی حیوانات", slug: "لوازم-جانبی-حیوانات"},
             {id: 73, title: "بهداشت و درمان حیوانات", slug: "بهداشت-درمان-حیوانات"},

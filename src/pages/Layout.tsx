@@ -84,7 +84,7 @@ function LayoutPage(): JSX.Element {
 
 
     return (
-        <>
+        <div className="flex min-h-dvh flex-col">
             <ScrollRestoration getKey={(location) => location.pathname}/>
             <TopLoadingBar/>
             <Header/>
@@ -101,7 +101,7 @@ function LayoutPage(): JSX.Element {
             <main className="px-36 py-8 max-lg:px-6">
                 <Outlet/>
             </main>
-        </>
+        </div>
     );
 }
 

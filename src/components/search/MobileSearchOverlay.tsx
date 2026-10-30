@@ -70,12 +70,11 @@ function MobileSearchOverlay({closeSearch, inputRef}: MobileSearchOverlayProps):
                     </button>
                     {openDropdown &&
                         <ul className="absolute w-full right-0 top-full bg-white border border-light-gray shadow-sm overflow-y-auto text-dark-gray text-sm max-h-[250px]">
-                            <li onClick={() => {
-                                setSelectedCategory(null);
-                                setOpenDropdown(false);
-                            }}
-                                className={`cursor-pointer active:bg-light-gray ${!selectedCategory ? "bg-light-gray" : "hover:bg-light-gray"}  hover:bg-lightest-gray py-3 px-2`}>
-                                <button type="button"
+                            <li className={`cursor-pointer active:bg-light-gray ${!selectedCategory ? "bg-light-gray" : "hover:bg-light-gray"}  hover:bg-lightest-gray py-3 px-2`}>
+                                <button type="button" onClick={() => {
+                                    setSelectedCategory(null);
+                                    setOpenDropdown(false);
+                                }}
                                         className={`pointer-events-none text-xs`}>همه
                                     دسته بندی ها
                                 </button>
