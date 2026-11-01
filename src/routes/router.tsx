@@ -17,8 +17,12 @@ import {MutationCache, QueryClient} from "@tanstack/react-query";
 import Loading from "../UI/Loading.tsx";
 import ProductsPage from "../pages/Products.tsx";
 import {searchLoader} from "../loaders/searchLoader.ts";
-import MobileOnlyRoute from "@/pages/MobileOnlyRoute.tsx";
+import MobileOnlyRoute from "@/routes/MobileOnlyRoute.tsx";
 import CategoriesPage from "@/pages/Categories.tsx";
+import CheckoutPage from "@/pages/Checkout.tsx";
+import {checkoutLoader} from "@/loaders/checkoutLoader.ts";
+import OrdersPage from "@/pages/Orders.tsx";
+import OrderDetailsPage from "@/pages/OrderDetails.tsx";
 
 
 export const queryClient = new QueryClient({
@@ -61,7 +65,17 @@ const router = createBrowserRouter([
             {
                 path: "products", element: <ProductsPage/>,
                 loader: searchLoader,
-            }
+            },
+            {
+                path: "checkout", element: <CheckoutPage/>,
+                loader: checkoutLoader,
+            },
+            {
+                path: "orders", children: [
+                    {index: true, element: <OrdersPage/>},
+                    {path: ":orderId", element: <OrderDetailsPage/>}
+                ]
+            },
         ]
     },
     {

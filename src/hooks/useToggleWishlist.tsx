@@ -15,13 +15,11 @@ function useToggleWishlist() {
     const {mutateAsync} = useMutation({
         mutationFn: toggleWishlist,
         onSuccess: (data) => {
-            console.log("data from server", data.data.products);
             dispatch(setWishlist(data.data.products));
         }
     })
 
     const handleWishlist = async (product: Product, isFavoriteProduct: boolean, variantId?: string) => {
-        console.log(product, variantId);
         if (isAuthenticated) {
             try {
                 await mutateAsync(product._id);
