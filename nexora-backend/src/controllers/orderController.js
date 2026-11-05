@@ -7,10 +7,7 @@ const Product = require('../models/Product');
 // تنظیمات ثابت (باید با فرانت CheckoutPage.tsx یکی باشه)
 // ---------------------------------------------------------------------------
 const FREE_SHIPPING_THRESHOLD = 1000000; // بالای ۱ میلیون تومان ارسال عادی رایگانه
-const SHIPPING_METHODS = {
-    standard: {cost: 50000, freeOverThreshold: true},
-    express: {cost: 95000, freeOverThreshold: false},
-};
+
 const PAYMENT_METHODS = ['zarinpal', 'cash_on_delivery']; // همان enum مدل Order
 
 const PROVINCES = [
@@ -25,11 +22,8 @@ const getEffectivePrice = (product) =>
     product.discountPrice > 0 ? product.discountPrice : product.price;
 
 // قیمت ارسال همیشه سمت سرور حساب می‌شه، نه از ورودی کاربر
-const calcShippingPrice = (method, itemsPrice) => {
-    const m = SHIPPING_METHODS[method];
-    if (m.freeOverThreshold && itemsPrice > FREE_SHIPPING_THRESHOLD) return 0;
-    return m.cost;
-};
+const calcShippingPrice = (itemsPrice) =>
+    itemsPrice > FREE_SHIPPING_THRESHOLD ? 0 : 120_000;
 
 // ---------------------------------------------------------------------------
 // اعتبارسنجی ورودی چک‌اوت
@@ -43,7 +37,7 @@ const isText = (v) => typeof v === 'string';
 
 // خروجی: { error } یا { data } ؛ فقط فیلدهای مجاز ذخیره می‌شن
 const validateCheckoutBody = (body) => {
-    const {shippingAddress: a, shippingMethod = 'standard', paymentMethod, note = ''} = body || {};
+    const {shippingAddress: a, paymentMethod, note = ''} = body || {};
 
     if (!a || typeof a !== 'object' || Array.isArray(a)) {
         return {error: 'آدرس ارسال الزامی است'};
@@ -57,15 +51,12 @@ const validateCheckoutBody = (body) => {
     const address = isText(a.address) ? a.address.trim() : '';
 
     if (fullName.length < 3 || fullName.length > 60) return {error: 'نام و نام خانوادگی معتبر نیست'};
-    if (!/^09\d{9}$/.test(receiverPhone)) return {error: 'شماره موبایل معتبر نیست'};
+    if (!/^(\+98|0)?9\d{9}$/.test(receiverPhone)) return {error: 'شماره موبایل معتبر نیست'};
     if (!PROVINCES.includes(province)) return {error: 'استان معتبر نیست'};
     if (city.length < 2 || city.length > 50) return {error: 'شهر معتبر نیست'};
-    if (!/^\d{10}$/.test(postalCode)) return {error: 'کد پستی باید ۱۰ رقم باشد'};
+    if (!/^\d{9,10}$/.test(postalCode)) return {error: 'کد پستی باید 9 یا 10 رقم باشد'};
     if (address.length < 10 || address.length > 300) return {error: 'آدرس باید بین ۱۰ تا ۳۰۰ کاراکتر باشد'};
 
-    if (!isText(shippingMethod) || !SHIPPING_METHODS[shippingMethod]) {
-        return {error: 'روش ارسال معتبر نیست'};
-    }
     if (!isText(paymentMethod) || !PAYMENT_METHODS.includes(paymentMethod)) {
         return {error: 'روش پرداخت معتبر نیست'};
     }
@@ -74,7 +65,6 @@ const validateCheckoutBody = (body) => {
     return {
         data: {
             shippingAddress: {fullName, receiverPhone, province, city, postalCode, address},
-            shippingMethod,
             paymentMethod,
             note: note.trim(),
         },
@@ -103,7 +93,7 @@ const restoreCart = async (userId, items) => {
 // @route   POST /api/orders
 // @access  Private
 // body:    { shippingAddress: { fullName, receiverPhone, province, city, postalCode, address },
-//            shippingMethod: 'standard' | 'express', paymentMethod: 'zarinpal' | 'cash_on_delivery', note? }
+//            paymentMethod: 'zarinpal' | 'cash_on_delivery', note? }
 const createOrder = asyncHandler(async (req, res) => {
     // اول ورودی چک می‌شه تا اگه اشتباه بود، سبد و موجودی دست نخورن
     const {error: validationError, data: checkout} = validateCheckoutBody(req.body);
@@ -169,7 +159,7 @@ const createOrder = asyncHandler(async (req, res) => {
             (acc, item) => acc + item.price * item.quantity,
             0
         );
-        const shippingPrice = calcShippingPrice(shippingMethod, itemsPrice);
+        const shippingPrice = calcShippingPrice(itemsPrice);
         const totalPrice = itemsPrice + shippingPrice;
 
         const order = await Order.create({

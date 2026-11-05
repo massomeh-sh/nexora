@@ -2,10 +2,12 @@ export const BASE_URL = "http://localhost:5000";
 
 export class ApiError extends Error {
     code?: string;
+    data?: unknown;
 
-    constructor(message?: string, code?: string) {
+    constructor(message?: string, code?: string, data?: unknown) {
         super(message);
         this.code = code;
+        this.data = data;
     }
 }
 
@@ -21,7 +23,7 @@ export async function apiFetch(path: string, options: RequestInit = {}) {
 
     if (!res.ok) {
         const errorData = await res.json().catch(() => null);
-        throw new ApiError(errorData.message || "خطایی رخ داد", errorData?.code);
+        throw new ApiError(errorData.message || "خطایی رخ داد", errorData?.code, errorData);
     }
     return res.json();
 }

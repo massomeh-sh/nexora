@@ -9,7 +9,7 @@ import {signupSchema} from "../../schema";
 import {useMutation} from "@tanstack/react-query";
 import {signUp} from "../../api/auth.ts";
 import {ApiError} from "../../api/apiClient.ts";
-import FormInput from "../../UI/form/FormInput.tsx";
+import AuthFormInput from "../../UI/form/AuthFormInput.tsx";
 import PasswordRequirements from "../../UI/form/PasswordRequirements.tsx";
 import {toast} from "sonner";
 
@@ -82,12 +82,12 @@ function SignUpPage(): JSX.Element {
             </div>
             <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4 max-lg:w-full">
                 {errors.root && <p className="text-sm text-primary-red mt-1">{errors.root.message}</p>}
-                <FormInput id="full-name" label="نام و نام خانوادگی" {...register("name")} autoComplete="name"
-                           error={errors.name?.message}/>
-                <FormInput id="email" type="email" label="آدرس ایمیل" autoComplete="email" {...register("email")}
-                           error={errors.email?.message}/>
-                <FormInput id="phone-number" type="tel" label="شماره تلفن" autoComplete="tel" {...register("phone")}
-                           error={errors.phone?.message}/>
+                <AuthFormInput id="full-name" label="نام و نام خانوادگی" {...register("name")} autoComplete="name"
+                               error={errors.name?.message}/>
+                <AuthFormInput id="email" type="email" label="آدرس ایمیل" autoComplete="email" {...register("email")}
+                               error={errors.email?.message}/>
+                <AuthFormInput id="phone-number" type="tel" label="شماره تلفن" autoComplete="tel" {...register("phone")}
+                               error={errors.phone?.message}/>
                 <div className="group">
                     <FormPasswordInput label="رمز عبور" {...register("password")} autoComplete="new-password"
                                        id="password"

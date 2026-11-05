@@ -10,7 +10,7 @@ interface BreadCrumbsProps {
 
 function BreadCrumbs({items, className}: BreadCrumbsProps): JSX.Element {
     return (
-        <nav aria-label="مسیر صفحه" className={`px-1 pb-5 md:-mt-3 text-sm max-md:pt-4 ${className}`}>
+        <nav aria-label="مسیر صفحه" className={`px-1 pb-5 text-sm max-md:pt-4 ${className}`}>
             <ol className="flex items-center flex-wrap gap-2 text-dark-gray">
                 {items.map((item, index) => {
                     const isLast = index === items.length - 1;

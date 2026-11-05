@@ -1,21 +1,25 @@
 import {useAppSelector} from "../../hooks/useAppSelector.ts";
 import {selectedCartSubTotal} from "../../store/cart/cartSlice.ts";
 import {priceFormater} from "@/utils/priceFormater.ts";
-import {Link, useNavigate} from "react-router";
+import {useNavigate} from "react-router";
 import {useDispatch} from "react-redux";
 import {hideCartSidebar} from "../../store/ui/uiSlice.ts";
-
-const FREESHIPPINGTHRESHOLD = 1000000;
+import {FREE_SHIPPING_THRESHOLD} from "@/constants/freeShipping.ts";
 
 function CartSidebarSummary() {
     const subTotal = useAppSelector(selectedCartSubTotal) ?? 0;
+    const cart = useAppSelector(state => state.cart);
+    const isAuthenticated = useAppSelector(state => state.user.isAuthenticated)
     const navigate = useNavigate();
     const dispatch = useDispatch();
     const isEmpty = !subTotal;
 
-    const progress = Math.min((subTotal / FREESHIPPINGTHRESHOLD) * 100, 100);
+    const progress = Math.min((subTotal / FREE_SHIPPING_THRESHOLD) * 100, 100);
 
-    const remaining = FREESHIPPINGTHRESHOLD - subTotal;
+    const remaining = FREE_SHIPPING_THRESHOLD - subTotal;
+
+    const cartItems = isAuthenticated ? cart?.cart?.items : cart.localItems;
+    const cartIsEmpty = cartItems?.length === 0;
 
 
     const handleNavigateToCart = () => {
@@ -23,18 +27,25 @@ function CartSidebarSummary() {
         dispatch(hideCartSidebar());
     }
 
+
+    const handleNavigateToCheckout = () => {
+        navigate("/checkout");
+        dispatch(hideCartSidebar());
+    }
+
     return (
-        <div className="bg-lightest-gray px-5 lg:px-8 py-5 shrink-0 border-t border-light-gray mt-auto space-y-3">
+        <div
+            className={`bg-lightest-gray px-5 lg:px-8 py-5 shrink-0 border-t border-light-gray mt-auto space-y-3 ${cartIsEmpty ? "hidden" : "block"}`}>
             {remaining > 0 &&
                 <p className="text-darkest-gray">{priceFormater(remaining)} تومان دیگر خرید کنید تا از <span
                     className="font-bold">ارسال رایگان</span> بهره مند شوید!</p>}
             {remaining <= 0 && (
                 <p>ارسال خرید شما کاملا رایگان است !</p>
             )}
-            <div className="relative mt-3 h-2 max-2xl:ml-3 rounded-full bg-light-gray">
+            <div className="relative mt-3 h-2 max-2xl:ml-3 rounded-full bg-light-gray ">
                 <div style={{width: `${progress}%`}}
                      className="absolute right-0 top-0 h-full rounded-full progress transition-all duration-500"></div>
-                <div style={{right: `${progress - 8}%`}}
+                <div style={{right: `${progress - 6}%`}}
                      className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 flex h-7 w-7 max-sm:w-6 max-sm:h-6 items-center justify-center rounded-full bg-primary-blue transition-all duration-500">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="#FFFF" width="1em" height="1em"
                          viewBox="-3 0 32 32" version="1.1">
@@ -50,14 +61,11 @@ function CartSidebarSummary() {
                 <p className="text-sm max-md:text-xs">هزینه ارسال و مالیات در مرحله پرداخت محاسیه خواهند شد.</p>
             </div>
             <div className="flex gap-2 justify-between max-sm:text-xs max-sm:flex-col">
-                <Link to="/checkout"
-                      aria-disabled={isEmpty}
-                      onClick={(e) => {
-                          if (isEmpty) e.preventDefault();
-                      }}
-                      className="w-full block bg-darkest-gray p-2 text-white text-center hover:opacity-90 rounded-lg">ثبت
+                <button aria-disabled={isEmpty}
+                        onClick={handleNavigateToCheckout}
+                        className="w-full block bg-darkest-gray cursor-pointer p-2 text-white text-center hover:opacity-90 rounded-lg">ثبت
                     سفارش
-                </Link>
+                </button>
                 <button onClick={handleNavigateToCart}
                         className="w-full block cursor-pointer p-2 text-center border border-darkest-gray text-darkest-gray hover:bg-darkest-gray hover:text-white transition-colors duration-300 rounded-lg">مشاهده
                     سبد خرید

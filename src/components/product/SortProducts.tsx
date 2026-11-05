@@ -35,9 +35,10 @@ function SortProducts({numProducts}: SortProductsProps): JSX.Element {
 
                 <FilterButton/>
 
-                {numProducts > 0 && <p className="text-gray-400 flex items-center justify-center gap-1 mr-auto">
-                    <span>{numProducts}</span><span>کالا</span>
-                </p>}
+                {numProducts && numProducts > 0 &&
+                    <p className="text-gray-400 flex items-center justify-center gap-1 mr-auto">
+                        <span>{numProducts}</span><span>کالا</span>
+                    </p>}
             </div>
 
         </div>

@@ -2,6 +2,10 @@ import {createSelector, createSlice, type PayloadAction} from "@reduxjs/toolkit"
 import type {CartState} from "./cartTypes.ts";
 import type {Cart, LocalCartItem, SelectableCartItem} from "../../types/cart.ts";
 import type {RootState} from "../index.ts";
+import {
+    FREE_SHIPPING_THRESHOLD,
+    SHIPPING_COST
+} from "@/constants/freeShipping.ts";
 
 const initialState: CartState = {
     localItems: [],
@@ -73,6 +77,19 @@ export const selectedCartSubTotal = createSelector([selectedCartItems], (items) 
         return total + item.quantity * (item.product.discountPrice || item.product.price)
     }, 0);
 });
+
+
+export const selectCartPricing = createSelector([selectedCartSubTotal], (rawSubTotal) => {
+    const subTotal = rawSubTotal ?? 0;
+    const freeShipping = subTotal >= FREE_SHIPPING_THRESHOLD || subTotal === 0;
+    const shipping = freeShipping ? 0 : SHIPPING_COST;
+
+    return {
+        subTotal,
+        shipping,
+        freeShipping
+    };
+})
 
 const selectedCartItem = (state: RootState, id: string, variantId?: string): SelectableCartItem | undefined => {
     const items = state.user.isAuthenticated ? state.cart.cart?.items : state.cart.localItems;

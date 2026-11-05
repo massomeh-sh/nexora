@@ -1,6 +1,6 @@
 import type {Product} from "../../types/product.ts";
 import {priceFormater} from "@/utils/priceFormater.ts";
-import {Link} from "react-router";
+import {Link, useNavigate} from "react-router";
 import {useDispatch} from "react-redux";
 import {showModal} from "../../store/ui/uiSlice.ts";
 import DiscountPrice from "../../UI/DiscountPrice.tsx";
@@ -16,8 +16,16 @@ interface ProductOrderDetailsProps {
 
 function ProductOrderDetails({product}: ProductOrderDetailsProps) {
     const dispatch = useDispatch();
+    const navigate = useNavigate();
 
-    const {productQuantity, isAuthenticated, itemId, currentCartItem, handleAddToCart} = useProductCart(product)
+    const {productQuantity, isAuthenticated, itemId, currentCartItem, handleAddToCart} = useProductCart(product);
+
+    const handleOrderButton = () => {
+        if (!currentCartItem?.isInCart) {
+            handleAddToCart();
+        }
+        navigate("/checkout");
+    }
 
     const {
         inputQuantity: quantity,
@@ -88,10 +96,11 @@ function ProductOrderDetails({product}: ProductOrderDetailsProps) {
                         </div>}
                 </div>
 
-                <Link to="/checkout"
-                      className="bg-primary-blue text-white px-2 py-3 rounded-sm text-center button-shake">ثبت
+                <button onClick={handleOrderButton}
+                        className="bg-primary-blue cursor-pointer text-white px-2 py-3 rounded-sm text-center button-shake">ثبت
                     سفارش
-                    محصول</Link>
+                    محصول
+                </button>
                 {!currentCartItem?.isInCart && <button onClick={handleAddToCart}
                                                        className="flex items-center justify-center gap-1 px-2 py-3 rounded-sm text-primary-blue border border-primary-blue -my-2 cursor-pointer hover:bg-primary-blue active:bg-white transition-colors duration-500 hover:text-white active:text-primary-blue">
                     <span>افزودن به سبد خرید</span>

@@ -1,4 +1,4 @@
-import {createBrowserRouter} from "react-router";
+import {createBrowserRouter, Navigate} from "react-router";
 import LayoutPage from "../pages/Layout.tsx";
 import HomePage from "../pages/Home.tsx";
 import SignInPage from "../pages/auth/SignIn.tsx";
@@ -20,9 +20,11 @@ import {searchLoader} from "../loaders/searchLoader.ts";
 import MobileOnlyRoute from "@/routes/MobileOnlyRoute.tsx";
 import CategoriesPage from "@/pages/Categories.tsx";
 import CheckoutPage from "@/pages/Checkout.tsx";
+// import OrdersPage from "@/pages/Orders.tsx";
+// import OrderDetailsPage from "@/pages/OrderDetails.tsx";
 import {checkoutLoader} from "@/loaders/checkoutLoader.ts";
-import OrdersPage from "@/pages/Orders.tsx";
-import OrderDetailsPage from "@/pages/OrderDetails.tsx";
+import PaymentResultPage from "@/pages/PaymentResult.tsx";
+import NotFoundPage from "@/pages/NotFound.tsx";
 
 
 export const queryClient = new QueryClient({
@@ -67,15 +69,20 @@ const router = createBrowserRouter([
                 loader: searchLoader,
             },
             {
-                path: "checkout", element: <CheckoutPage/>,
-                loader: checkoutLoader,
+                path: "checkout", element: <CheckoutPage/>, loader: checkoutLoader
             },
+            // {
+            //     path: "orders", children: [
+            //         {index: true, element: <OrdersPage/>},
+            //         {path: ":orderId", element: <OrderDetailsPage/>}
+            //     ]
+            // },
             {
-                path: "orders", children: [
-                    {index: true, element: <OrdersPage/>},
-                    {path: ":orderId", element: <OrderDetailsPage/>}
+                path: "payment", children: [
+                    {index: true, element: <Navigate to="/checkout" replace/>},
+                    {path: "result", element: <PaymentResultPage/>}
                 ]
-            },
+            }
         ]
     },
     {
@@ -87,7 +94,8 @@ const router = createBrowserRouter([
             {path: "forgot-password", element: <ForgotPasswordPage/>},
             {path: "reset-password/:token", element: <ResetPasswordPage/>}
         ]
-    }
+    },
+    {path: "*", element: <NotFoundPage/>}
 ])
 
 

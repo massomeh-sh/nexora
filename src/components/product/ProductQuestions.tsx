@@ -9,7 +9,6 @@ function ProductQuestions(): JSX.Element {
 
     const handleAddQuestion = () => {
         if (isAuthenticated) {
-            console.log(questionText);
             setQuestionText('')
         } else {
             navigate("/auth");

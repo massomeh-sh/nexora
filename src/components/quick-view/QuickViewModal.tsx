@@ -100,7 +100,7 @@ function QuickViewModal() {
                                        selectedVariantId={variantId}/>
                     }
                     <div className="bg-light-gray w-full h-0.5 my-5"/>
-                    <p className="text-dark-gray text-lg max-md:text-sm">{displayProduct.description || "hi"}</p>
+                    <p className="text-dark-gray text-lg max-md:text-sm">{displayProduct.description || ""}</p>
                     <div className="flex gap-8">
                         <p className="flex items-center gap-2">
                             <svg stroke="currentColor" fill="currentColor" strokeWidth="0" viewBox="0 0 24 24"

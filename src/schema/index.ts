@@ -41,3 +41,18 @@ export const resetPasswordSchema = z.object({
     message: "رمز عبور و تکرار رمز عبور یکسان نیستند",
     path: ["confirmPassword"],
 })
+
+
+export const createOrderSchema = z.object({
+    name: z.string().min(1, "لطفا نام خود را وارد کنید").max(50, "نام و نام خانوادگی نمیتواند بیشتر از ۵۰ کاراکتر باشد"),
+    phone: z.string().min(1, "لطفا شماره تلفن خود را وارد کنید").regex(PHONE_RULE,
+        "لطفا یک شماره تلفن معتبر وارد کنید."),
+    province: z.string().min(1, "لطفا نام استان محل اقامت خود را انتخاب کنید"),
+    city: z.string().min(1, "لطفا شهر محل اقامت خود را انتخاب کنید"),
+    postCode: z.string().min(1, "لطفا کد پستی خود را وارد کنید").regex(/^\d{9,10}$/, "کد پستی باید ۹ یا ۱۰ رقم باشد"),
+    address: z.string().min(1, "لطفا آدرس محل اقامت خود را وارد کنید").min(10, 'آدرس باید حداقل ۱۰ کاراکتر باشد').max(300, 'آدرس بیش از حد طولانی است'),
+    notes:
+        z.string(),
+    paymentMethod:
+        z.enum(["zarinpal", "cash_on_delivery"], {error: "لطفا روش پرداخت را انتخاب کنید"})
+})

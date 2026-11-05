@@ -7,23 +7,24 @@ interface InputFormProps extends React.HTMLProps<HTMLInputElement> {
     id: string;
     label: string;
     error?: string;
+    className?: string;
 }
 
-function FormInput({type = "text", label, error, id, ...props}: InputFormProps): JSX.Element {
+function AuthFormInput({type = "text", label, error, id, className = "", ...props}: InputFormProps): JSX.Element {
     return (
-        <div className="flex flex-col">
-            <div className="relative">
-                <input type={type} id={id} {...props} placeholder=" "
-                       className={`peer w-full rounded-sm border ${error ? "border-primary-red" : "border-gray-300"} px-4 py-3 outline-none ${error ? "focus:border-primary-red" : "focus:border-black"}`}/>
+        <div className={`flex flex-col max-md:text-sm ${className}`}>
+            <div>
                 <label htmlFor={id}
-                       className={`pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 bg-white px-1 ${error ? "text-primary-red" : "text-gray-300"} transition-all peer-focus:top-0 peer-focus:text-sm peer-focus:${error ? "text-primary-red" : "text-black"} peer-[:not(:placeholder-shown)]:top-0 peer-[:not(:placeholder-shown)]:-translate-y-1/2 peer-[:not(:placeholder-shown)]:text-sm peer-[:not(:placeholder-shown)]:${error ? "text-primary-red" : "text-black"}`}>
+                       className={`pointer-events-none bg-white px-1 ${error ? "text-primary-red" : ""} transition-all peer-focus:${error ? "text-primary-red" : "text-black"} peer-[:not(:placeholder-shown)]:${error ? "text-primary-red" : "text-black"}`}>
                     {label}
                 </label>
+                <input type={type} id={id} {...props}
+                       className={`peer w-full mt-1.5 rounded-lg max-md:placeholder:text-[12px] focus:bg-light-gray focus:ring-3 focus:ring-primary-blue/70 border focus:border-primary-blue ${error ? "border-primary-red" : "border-gray-300"} px-4 py-3 outline-none ${error ? "focus:border-primary-red" : "focus:border-black"}`}/>
             </div>
-            {error && <p className="text-sm text-primary-red mt-1">{error}</p>}
+            {error && <p className="text-sm max-md:text-[12px] text-primary-red mt-1">{error}</p>}
         </div>
     );
 }
 
-export default FormInput;
+export default AuthFormInput;
 

@@ -1,5 +1,5 @@
 import type {JSX} from 'react';
-import FormInput from "../../UI/form/FormInput.tsx";
+import AuthFormInput from "../../UI/form/AuthFormInput.tsx";
 import {type SubmitHandler, useForm} from "react-hook-form";
 import {z} from "zod";
 import {zodResolver} from "@hookform/resolvers/zod";
@@ -41,8 +41,8 @@ function ForgotPasswordPage(): JSX.Element {
             {isSuccess && <p className="text-sm text-green-600">{data?.message}</p>}
             {isError && (
                 <p className="text-sm text-primary-red">{error instanceof ApiError ? error.message : "خطا در ارسال ایمیل."}</p>)}
-            <FormInput id="email" type="email" label="آدرس ایمیل"
-                       autoComplete="email" {...register("email")} error={errors.email?.message}/>
+            <AuthFormInput id="email" type="email" label="آدرس ایمیل"
+                           autoComplete="email" {...register("email")} error={errors.email?.message}/>
             <FormButton isSubmitting={isPending} btnText="ارسال"/>
             <Link to=".." className="text-primary-blue cursor-pointer pb-2"
                   type="button">

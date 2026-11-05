@@ -4,7 +4,7 @@ const Cart = require('../models/Cart');
 const Product = require('../models/Product');
 
 const POPULATE_FIELDS =
-    'name images price shortDescription description discountPrice stock unit variants';
+    'name images price shortDescription description discountPrice quantity stock unit variants';
 
 // ---------- Helpers ----------
 

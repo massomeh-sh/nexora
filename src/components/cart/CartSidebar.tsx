@@ -31,10 +31,12 @@ function CartSidebar(): JSX.Element {
         }
     }
 
+    const cartIsEmpty = cartItems.length === 0;
+
     return (
         <Sidebar isOpen={activeSidebar === "cart"} asideName="سبد خرید" onClose={() => dispatch(hideCartSidebar())}>
-            {cartItems.length > 0 && <button className="cursor-pointer py-2 text-primary-blue hover:text-blue-700"
-                                             onClick={handleClearCart}>حذف همه موارد</button>
+            {!cartIsEmpty && <button className="cursor-pointer py-2 text-primary-blue hover:text-blue-700"
+                                    onClick={handleClearCart}>حذف همه موارد</button>
             } {cartItems.length === 0 ? (
             <div className="flex flex-col items-center justify-center h-full">
                 <img src={emptyCartSidebar} alt="سبد خرید خالی است" className="w-52"/>
@@ -68,6 +70,7 @@ function CartSidebar(): JSX.Element {
                     ))
                 )}
             </ul>)}
+
         </Sidebar>
     );
 }

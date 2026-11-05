@@ -1,7 +1,7 @@
 import {type JSX} from 'react';
 import {Link, useLocation, useNavigate} from "react-router";
 import FormPasswordInput from "../../UI/form/FormPasswordInput.tsx";
-import FormInput from "../../UI/form/FormInput.tsx";
+import AuthFormInput from "../../UI/form/AuthFormInput.tsx";
 import {type SubmitHandler, useForm} from "react-hook-form";
 import {z} from "zod";
 import {zodResolver} from "@hookform/resolvers/zod";
@@ -65,8 +65,8 @@ function SignInPage(): JSX.Element {
             </div>
             <form onSubmit={handleSubmit(onSubmit)} className="mt-2 space-y-3 max-lg:w-full">
                 {errors.root && (<p className="text-sm text-primary-red">{errors.root.message}</p>)}
-                <FormInput type="email" id="email" autoComplete="email"
-                           label="آدرس ایمیل" {...register("email")} error={errors.email?.message}/>
+                <AuthFormInput type="email" id="email" autoComplete="email"
+                               label="آدرس ایمیل" {...register("email")} error={errors.email?.message}/>
                 <FormPasswordInput label="رمز عبور" autoComplete="current-password"
                                    id="password" {...register("password")} error={errors.password?.message}/>
                 <div className="flex items-center justify-between">
