@@ -30,7 +30,7 @@ function ResetPasswordPage(): JSX.Element {
         onSuccess: (data) => {
             dispatch(setUser(data.data));
             mergeGuestData();
-            navigate("/dashboard");
+            navigate("/profile");
         }
     })
 

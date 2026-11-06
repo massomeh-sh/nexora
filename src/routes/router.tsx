@@ -8,7 +8,7 @@ import AuthLayoutPage from "../pages/auth/AuthLayout.tsx";
 import CheckEmailPage from "../pages/auth/ChackEmail.tsx";
 import VerifyEmailPage from "../pages/auth/VerifyEmail.tsx";
 import ResetPasswordPage from "../pages/auth/ResetPassword.tsx";
-import DashboardPage from "../pages/Dashboard.tsx";
+import ProfilePage from "../pages/profile/Profile.tsx";
 import WishlistPage from "../pages/Wishlist.tsx";
 import CartPage from "../pages/Cart.tsx";
 import ProductPage from "../pages/Product.tsx";
@@ -25,6 +25,15 @@ import CheckoutPage from "@/pages/Checkout.tsx";
 import {checkoutLoader} from "@/loaders/checkoutLoader.ts";
 import PaymentResultPage from "@/pages/PaymentResult.tsx";
 import NotFoundPage from "@/pages/NotFound.tsx";
+import OrdersPage from "@/pages/profile/Orders.tsx";
+import ListsPage from "@/pages/profile/Lists.tsx";
+import CommentsPage from "@/pages/profile/Comments.tsx";
+import AddressesPage from "@/pages/profile/Addresses.tsx";
+import NotificationPage from "@/pages/profile/Notification.tsx";
+import UserHistoryPage from "@/pages/profile/UserHistory.tsx";
+import PersonalPage from "@/pages/Personal.tsx";
+import ProfileLayoutPage from "@/pages/profile/ProfileLayout.tsx";
+import {profileLoader} from "@/loaders/profile/profileLoader.ts";
 
 
 export const queryClient = new QueryClient({
@@ -50,7 +59,18 @@ const router = createBrowserRouter([
                 ]
             },
             {
-                path: "dashboard", element: <DashboardPage/>
+                path: "profile", element: <ProfileLayoutPage/>, loader: profileLoader, children: [
+                    {index: true, element: <ProfilePage/>},
+                    {path: "orders", element: <OrdersPage/>},
+                    {path: "lists", element: <ListsPage/>},
+                    {path: "comments", element: <CommentsPage/>},
+                    {path: "addresses", element: <AddressesPage/>},
+                    {path: "notifications", element: <NotificationPage/>},
+                    {path: "user-history", element: <UserHistoryPage/>}
+                ]
+            },
+            {
+                path: "personal", element: <PersonalPage/>
             },
             {
                 path: "wishlist", element: <WishlistPage/>
@@ -71,12 +91,6 @@ const router = createBrowserRouter([
             {
                 path: "checkout", element: <CheckoutPage/>, loader: checkoutLoader
             },
-            // {
-            //     path: "orders", children: [
-            //         {index: true, element: <OrdersPage/>},
-            //         {path: ":orderId", element: <OrderDetailsPage/>}
-            //     ]
-            // },
             {
                 path: "payment", children: [
                     {index: true, element: <Navigate to="/checkout" replace/>},

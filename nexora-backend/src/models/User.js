@@ -2,6 +2,17 @@ const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 const crypto = require('crypto');
 
+
+const addressSchema = new mongoose.Schema({
+    receiverName: {type: String, trim: true},
+    receiverPhone: {type: String, trim: true},
+    province: {type: String, trim: true, required: [true, 'استان الزامی است']},
+    city: {type: String, trim: true, required: [true, 'شهر الزامی است']},
+    detail: {type: String, trim: true, required: [true, 'آدرس کامل الزامی است']},
+    postalCode: {type: String, trim: true},
+    isDefault: {type: Boolean, default: false},
+});
+
 const userSchema = new mongoose.Schema(
     {
         name: {
@@ -27,11 +38,13 @@ const userSchema = new mongoose.Schema(
             select: false,
         },
         address: {
-            province: { type: String, trim: true },
-            city: { type: String, trim: true },
-            detail: { type: String, trim: true },
-            postalCode: { type: String, trim: true },
+            province: {type: String, trim: true},
+            city: {type: String, trim: true},
+            detail: {type: String, trim: true},
+            postalCode: {type: String, trim: true},
         },
+        addresses: [addressSchema],
+        wishlist: [{type: mongoose.Schema.Types.ObjectId, ref: 'Product'}],
         resetPasswordToken: {
             type: String,
             select: false,
@@ -44,6 +57,11 @@ const userSchema = new mongoose.Schema(
             type: Boolean,
             default: false,
         },
+        role: {
+            type: String,
+            enum: ['user', 'admin'],
+            default: 'user',
+        },
         verificationToken: {
             type: String,
             select: false,
@@ -53,7 +71,7 @@ const userSchema = new mongoose.Schema(
             select: false,
         },
     },
-    { timestamps: true }
+    {timestamps: true}
 );
 
 userSchema.pre('save', async function (next) {

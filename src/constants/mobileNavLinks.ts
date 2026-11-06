@@ -12,5 +12,5 @@ export const mobileNavLinks: NavItem[] = [
     {id: "category", label: "دسته بندی", href: "/categories", icon: TbCategory},
     {id: "products", label: "محصولات", href: "/products", icon: TbShoppingCart},
     {id: "cart", label: "سبد خرید", href: "/cart", icon: TbBasket},
-    {id: "profile", label: "پروفایل من", href: "/dashboard", icon: TbUser},
+    {id: "profile", label: "پروفایل من", href: "/profile", icon: TbUser},
 ]

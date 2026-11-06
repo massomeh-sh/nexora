@@ -92,7 +92,7 @@ function Header(): JSX.Element {
                     <div className="flex gap-6 max-lg:hidden">
                         <div onMouseEnter={() => setIsLoginDropdownOpen(true)}
                              onMouseLeave={() => setIsLoginDropdownOpen(false)} className="relative">
-                            <Link to={`${isAuthenticated ? "dashboard" : "auth"}`}
+                            <Link to={`${isAuthenticated ? "profile" : "auth"}`}
                                   aria-label="حساب کاربری"
                                   className="cursor-pointer">
                                 <TbUser className="text-3xl text-white"/>

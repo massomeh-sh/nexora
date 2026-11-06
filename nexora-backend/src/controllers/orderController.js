@@ -217,8 +217,49 @@ const getOrderById = asyncHandler(async (req, res) => {
     res.json({success: true, data: order});
 });
 
+
+// وضعیت‌هایی که از هر وضعیت می‌شود به آن‌ها رفت
+const ALLOWED_TRANSITIONS = {
+    pending: ['processing', 'cancelled'],
+    processing: ['shipped', 'cancelled'],
+    shipped: ['delivered'],
+    delivered: ['returned'],
+    cancelled: [],
+    returned: [],
+};
+
+// @desc    تغییر وضعیت سفارش (ادمین)
+// @route   PUT /api/orders/:id/status
+// @access  Private/Admin
+const updateOrderStatus = asyncHandler(async (req, res) => {
+    const {status} = req.body;
+    const order = await Order.findById(req.params.id);
+
+    if (!order) {
+        res.status(404);
+        throw new Error('سفارش یافت نشد');
+    }
+
+    if (!ALLOWED_TRANSITIONS[order.status]?.includes(status)) {
+        res.status(400);
+        throw new Error(`تغییر وضعیت از «${order.status}» به «${status}» مجاز نیست`);
+    }
+
+    // لغو یا مرجوعی: موجودی انبار برمی‌گردد
+    // (چون هر سفارش فقط یک‌بار می‌تواند به این وضعیت‌ها برسد، دوبار برگردانده نمی‌شود)
+    if (status === 'cancelled' || status === 'returned') {
+        await restoreStock(order.items);
+    }
+
+    order.status = status;
+    await order.save();
+
+    res.json({success: true, data: order});
+});
+
 module.exports = {
     createOrder,
     getMyOrders,
     getOrderById,
+    updateOrderStatus,
 };

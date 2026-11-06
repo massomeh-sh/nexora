@@ -39,6 +39,7 @@ app.use('/api/products', require('./src/routes/productRoutes'));
 app.use('/api/cart', require('./src/routes/cartRoutes'));
 app.use('/api/wishlist', require('./src/routes/wishlistRoutes'));
 app.use('/api/orders', require('./src/routes/orderRoutes'));
+app.use('/api/users', require('./src/routes/userRoutes'));
 
 app.get('/api/health', (req, res) => {
     res.json({success: true, message: 'سرور Kartify بک‌اند فعال است 🚀'});

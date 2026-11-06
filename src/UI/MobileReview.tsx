@@ -24,7 +24,8 @@ function MobileReview({productId, reviewData, isAuthenticated}: MobileReviewProp
         <div className="flex flex-col gap-3 border border-light-gray p-4 rounded-lg w-72 h-64">
             <div className="flex items-center gap-3">
                 <h3 className="space-x-2">
-                    <span className="text-gray-700">{reviewData?.name ? reviewData?.name : "کاربر نکسورا"}</span>
+                    <span
+                        className="text-gray-700">{reviewData?.authorName ? reviewData?.authorName : "کاربر نکسورا"}</span>
                     <span className="text-light-gray text-lg">&bull;</span>
                 </h3>
                 <div className="bg-green-200 text-green-800 text-xs p-1 px-2 rounded-full">خریدار</div>
